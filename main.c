@@ -19,36 +19,50 @@ void init(){
     }
     //assign master type
     if(rank < countOfX){
-        master = X;
-        queque = malloc(countOfX*sizeof(int));}
+        master = X;}
     else if(rank >= countOfX && rank < countOfX+countOfY){
-        master = Y;
-        queque = malloc(countOfY*sizeof(int));}
+        master = Y;}
     else{
-        master = Z;
-        queque = malloc(countOfZ*sizeof(int));}
+        master = Z;}
     //set hyperspace full
-    hyperSpace = MAX_ENERGY;
-    if(rank == ROOT)
-        printf("X: %d, Y: %d, Z: %d\n",countOfX,countOfY,countOfZ);
-    
+    hyperSpace = MAX_ENERGY;    
 }
-void X_stuff(){
-    
+void sendMessage(int sender, int receiver, int type){
+    struct Message message;
+    message.sender= sender;
+    message.timestamp = timestamp;
+    message.type = type;
+    MPI_Send(&message, 1, mpi_message_type, receiver, 100, MPI_COMM_WORLD);
+}
+void sendToGroup(int id, masters master, int messageType){
+    if(master == X){
+        timestamp++;
+        for(int i = 0; i<countOfX;i++){
+            if(id == i)
+                continue;
+            sendMessage(id, i, messageType);
+        }
+    }else if(master == Y){
+        timestamp++;
+        for(int i = 0; i < countOfY; i++){
+            if(id == i+countOfX)
+                continue;
+            sendMessage(id, i+countOfX, messageType);
+        }
+    }else if(master == Z){
+        timestamp++;
+        for(int i = 0; i < countOfZ; i++){
+            if(id == i+countOfX+countOfY)
+                continue;
+            sendMessage(id, i+countOfX+countOfY, messageType);
+        }
+    }
 }
 int main(int argc, char **argv){
     MPI_Init(&argc, &argv);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
     init();
-
-    if(master == X)
-        X_stuff();
-    else if(master == Y)
-        Y_stuff();
-    else 
-        Z_stuff();
-
     MPI_Finalize();
     return 0;
 }
