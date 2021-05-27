@@ -3,21 +3,33 @@
 
 #include "consts.h"
 
-int size, rank;
-MPI_Status status;
+int size, id;
 MPI_Datatype mpi_message_type;
 
-masters master;
-int timestamp=0;
-int hyperSpace;
 int countOfX, countOfY, countOfZ;
+
+masters master;
+pthread_mutex_t tsMutex;// }
+int timestamp=0;//         }
+pthread_mutex_t hsMutex;//     }
+int hyperSpace;//              }
+pthread_mutex_t quequeMutex;//     }
+int *queque;//                     }
+bool *valid;//                     }
+int sended_ts;
+int groupedProcess_id;//for X and Y
 
 //Initialize numbers of masters, set hyperspace full and assign master type to process
 void init();
-//included incrementing timestamp
-void sendMessage(int sender, int receiver, int type);
+void incrementTimestamp(int income);
+void sendMessage(int receiver, int type);
+void sendToGroup(int messageType, masters master);
 struct Message receiveMessage();
-void *listeningThread(int id);
-void sendToGroup(int id, masters master, int messageType);
+
+typedef enum{quequeing, waitingForY, farming} stateX;
+void runningX();
+void *sendingThreadX();
+void *listeningThreadX();
+
 int main(int argc, char **argv);
 #endif
