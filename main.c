@@ -28,21 +28,22 @@ void init(){
     hyperSpace = MAX_ENERGY;    
 }
 void initCustomMessage(){
-    int block[3] = {1,1,1};
-    MPI_Datatype types[3] = {MPI_INT, MPI_INT, MPI_INT};
-    MPI_Aint offsets[3];
+    int block[4] = {1,1,1,1};
+    MPI_Datatype types[4] = {MPI_INT, MPI_INT, MPI_INT, MPI_INT};
+    MPI_Aint offsets[4];
     offsets[0] = offsetof(struct Message, sender);
     offsets[1] = offsetof(struct Message, timestamp);
     offsets[2] = offsetof(struct Message, type);
-    MPI_Type_create_struct(3,block,offsets,types,&mpi_message_type);
+    offsets[3] = offsetof(struct Message, inQue);
+    MPI_Type_create_struct(4, block, offsets, types, &mpi_message_type);
     MPI_Type_commit(&mpi_message_type);
-    
 }
-void sendMessage(int receiver, int type){
+void sendMessage(int receiver, int type, int in){
     struct Message message;
     message.sender= id;
     message.timestamp = timestamp;
     message.type = type;
+    message.inQue = in;
     MPI_Send(&message, 1, mpi_message_type, receiver, 100, MPI_COMM_WORLD);
 }
 struct Message receiveMessage(){
@@ -57,37 +58,41 @@ void incrementTimestamp(int income){
     else
         timestamp++;
 }
-void sendToGroup(int messageType, masters master){
+void sendToGroup(int messageType, masters master, int n){
     if(master == X){
         for(int i = 0; i<countOfX;i++){
             if(id == i)
                 continue;
-            sendMessage(i, messageType);
+            sendMessage(i, messageType, n);
         }
     }else if(master == Y){
         for(int i = 0; i < countOfY; i++){
             if(id == i+countOfX)
                 continue;
-            sendMessage(i+countOfX, messageType);
+            sendMessage(i+countOfX, messageType, n);
         }
     }else if(master == Z){
         for(int i = 0; i < countOfZ; i++){
             if(id == i+countOfX+countOfY)
                 continue;
-            sendMessage(i+countOfX+countOfY, messageType);
+            sendMessage(i+countOfX+countOfY, messageType, n);
         }
     }
 }
-int queuePlace(int acks, masters master, int *queue, char *valid){
+int queuePlace(int acks, masters master, int *queue, int *inQue){
     int zeros = 0, k = 1;
     if(master == X){
         if(acks == countOfX -1){
+            state = waitingForY;
             for(int i = 0; i<countOfX; i++){
                 if(i == id)
                     continue;
-                if(queue[i] < sended_ts && valid[i]){
+                if(queue[i] < sended_ts)
                     k++;
-                }
+                else if(queue[i] == sended_ts && id < i)
+                    k++;
+                else if(queue[i]>sended_ts && inQue[i]==1)
+                    k++;
             }
         }else 
             k = 0;
@@ -103,13 +108,12 @@ int queuePlace(int acks, masters master, int *queue, char *valid){
             pthread_mutex_lock(&tsMutex);
             incrementTimestamp(message.timestamp);
             queue[message.sender] = message.timestamp;
-            valid[message.sender] = 1;
+            inQue[message.sender] = 1;
             sendMessage(message.sender, ACK);
             pthread_mutex_unlock(&tsMutex);
         }else if(message.type == ACK){
             if(message.timestamp>sended_ts)
                 receivedACKs++;
-checkpoint:
                 k = queuePlace(receivedACKs, X);
                 if(k==0) continue;
                 if(k <= countOfY){
@@ -120,8 +124,7 @@ checkpoint:
                     pthread_mutex_unlock(&tsMutex);
                 }
         }else if(message.type == RELEASE_X){
-            valid[message.sender]=0;
-            goto checkpoint;
+            inQue[message.sender]=0;
         }else if(message.type == JOINED){
             state = farming;
         }else if(message.type == RELEASE_Y){
@@ -131,52 +134,53 @@ checkpoint:
 }*/
 void runningX(){
     int *queue= malloc(countOfX * sizeof(int));
-    char *valid= malloc(countOfX * sizeof(char)); 
-    memset(valid, 1, countOfX);
+    char *inQue= malloc(countOfX * sizeof(char)); 
+    memset(inQue, 0, countOfX);
     memset(queue, 0, countOfX);
     struct Message message;
     state = queueing;
+    int k=0;
     //pthread_t thread;
     //pthread_create(&thread, NULL, listeningX, NULL);
 start:
-        if(state == queueing){
-            pthread_mutex_lock(&tsMutex);
-            incrementTimestamp(0);
-            sended_ts = timestamp;
-            sendToGroup(REQ, X);
-            receivedACKs = 0;
-            queue[id]=sended_ts;
-            state = waitingForXs;
-            pthread_mutex_unlock(&tsMutex);
-        }
-    int k;
+    incrementTimestamp(0);
+    sended_ts = timestamp;
+    sendToGroup(REQ, X, 0);
+    receivedACKs = 0;
+    queue[id]=sended_ts;
+    state = waitingForXs;
+    
     while(1){
         message = receiveMessage();
+        //Jeśli nie jesteś zakolejkowany inQue=0, jeśli jesteś inQue=1
         if(message.type == REQ){
-            pthread_mutex_lock(&tsMutex);
             incrementTimestamp(message.timestamp);
             queue[message.sender] = message.timestamp;
-            valid[message.sender] = 1;
-            sendMessage(message.sender, ACK);
-            pthread_mutex_unlock(&tsMutex);
+            if(state == waitingForY || state == farming)
+                sendMessage(message.sender, ACK, 1);
+            else
+                sendMessage(message.sender, ACK, 0);
         }else if(message.type == ACK){
             if(message.timestamp>sended_ts)
                 receivedACKs++;
+                inQue[message.sender] = message.inQue;
+                incrementTimestamp(message.timestamp);
 checkpoint:
-                k = queuePlace(receivedACKs, X, queue, valid);
+                k = queuePlace(receivedACKs, X, queue, inQue);
                 if(k==0) continue;
-                if(k <= countOfY){
-                    pthread_mutex_lock(&tsMutex);
+                if(k <= countOfY && state != waitingForY){
                     incrementTimestamp(message.timestamp);
                     state = waitingForY;
-                    sendToGroup(GROUP_ME, Y);
-                    pthread_mutex_unlock(&tsMutex);
+                    sendToGroup(GROUP_ME, Y, k);
                 }
         }else if(message.type == RELEASE_X){
-            valid[message.sender]=0;
+            inQue[message.sender]=0;
+            incrementTimestamp(message.timestamp);
             goto checkpoint;
         }else if(message.type == JOINED){
+            incrementTimestamp(message.timestamp);
             state = farming;
+            groupedProcess_id = message.sender;
         }else if(message.type == RELEASE_Y){
             state = queueing;
             goto start;
@@ -193,8 +197,6 @@ int main(int argc, char **argv){
     init();
     if(master == X)
         runningX();
-    else
-        sleep(100000);
 
     MPI_Finalize();
     return 0;

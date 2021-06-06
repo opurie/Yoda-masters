@@ -36,6 +36,7 @@ struct Message{
     int sender;
     int timestamp;
     int type;
+    int inQue;
 };
 
 typedef enum {X=100,Y,Z} masters;
