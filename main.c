@@ -139,7 +139,7 @@ void runningX(){
     memset(queue, 0, countOfX);
     struct Message message;
     state = queueing;
-    int k=0;
+    int k=0, sendedToY=0;
     //pthread_t thread;
     //pthread_create(&thread, NULL, listeningX, NULL);
 start:
@@ -153,6 +153,8 @@ start:
     while(1){
         message = receiveMessage();
         //Jeśli nie jesteś zakolejkowany inQue=0, jeśli jesteś inQue=1
+        if(id==0)
+        printf("%d <- %d, %d\n", id, message.sender, message.type);
         if(message.type == REQ){
             incrementTimestamp(message.timestamp);
             queue[message.sender] = message.timestamp;
@@ -160,19 +162,24 @@ start:
                 sendMessage(message.sender, ACK, 1);
             else
                 sendMessage(message.sender, ACK, 0);
+                if(id==0)
+            printf("%d -> %d, ACK\n", id, message.sender);
         }else if(message.type == ACK){
             if(message.timestamp>sended_ts)
                 receivedACKs++;
-                inQue[message.sender] = message.inQue;
-                incrementTimestamp(message.timestamp);
+            inQue[message.sender] = message.inQue;
+            incrementTimestamp(message.timestamp);
+            if(receivedACKs==countOfX-1)
+                state = waitingForY;
 checkpoint:
+            if(receivedACKs==countOfX-1)
                 k = queuePlace(receivedACKs, X, queue, inQue);
-                if(k==0) continue;
-                if(k <= countOfY && state != waitingForY){
-                    incrementTimestamp(message.timestamp);
-                    state = waitingForY;
-                    sendToGroup(GROUP_ME, Y, k);
-                }
+            if(k>0 && k <= countOfY && sendedToY==0){
+                incrementTimestamp(message.timestamp);
+                printf("Jestem %d, numer w kolejce %d, ts %d\n",id,k, timestamp);
+                sendToGroup(GROUP_ME, Y, k);
+                sendedToY=1;
+            }
         }else if(message.type == RELEASE_X){
             inQue[message.sender]=0;
             incrementTimestamp(message.timestamp);
@@ -190,7 +197,6 @@ checkpoint:
 }
 int main(int argc, char **argv){
     MPI_Init(&argc, &argv);
-    printf("Sfdfsd");
     initCustomMessage();
     MPI_Comm_rank(MPI_COMM_WORLD, &id);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
