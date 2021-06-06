@@ -12,10 +12,7 @@ masters master;
 pthread_mutex_t tsMutex;// }
 int timestamp=0;//         }
 pthread_mutex_t hsMutex;//     }
-int hyperSpace;//              }
-pthread_mutex_t quequeMutex;//     }
-int *queque;//                     }
-bool *valid;//                     }
+int hyperSpace;
 int sended_ts;
 int groupedProcess_id;//for X and Y
 
@@ -26,10 +23,14 @@ void sendMessage(int receiver, int type);
 void sendToGroup(int messageType, masters master);
 struct Message receiveMessage();
 
-typedef enum{quequeing, waitingForY, farming} stateX;
+typedef enum{queueing, waitingForXs, waitingForY, farming} stateX;
+stateX state;
+int receivedACKs = 0;
+void initCustomMessage();
+void *listeningX();
+int queuePlace(int acks, masters master, int *queue, char *valid);
 void runningX();
-void *sendingThreadX();
-void *listeningThreadX();
+
 
 int main(int argc, char **argv);
 #endif

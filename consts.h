@@ -15,11 +15,13 @@
 //Messages
 #define REQ 10
 #define ACK 11
-#define RELEASE 12
-#define JOINED 13
-#define GROUP_ME 14
-#define FULL 15
-#define EMPTY 16
+#define RELEASE_X 12
+#define RELEASE_Y 13
+#define RELEASE_Z 14
+#define JOINED 15
+#define GROUP_ME 16
+#define FULL 17
+#define EMPTY 18
 
 //percentage of each masters type, sum must be 1.0
 #define X_MASTERS 0.35

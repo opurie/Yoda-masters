@@ -11,4 +11,4 @@ clear: clean
 clean: 
 	rm main a.out
 run: main
-	mpirun -np 200 ./main
+	mpirun -n 20 ./main
