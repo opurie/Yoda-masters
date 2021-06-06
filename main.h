@@ -2,10 +2,11 @@
 #define MAIN_H
 
 #include "consts.h"
-
+//MPIowe typy
 int size, id;
 MPI_Datatype mpi_message_type;
 
+//liczba procesów poszczegolnej grupy
 int countOfX, countOfY, countOfZ;
 
 masters master;
@@ -23,14 +24,20 @@ void sendMessage(int receiver, int type, int in);
 void sendToGroup(int messageType, masters master, int n);
 struct Message receiveMessage();
 
+//możliwe poprawki ale jest spoko narazie
 typedef enum{queueing, waitingForXs, waitingForY, farming} stateX;
+//ma zapisany aktualny stan procesu X
 stateX state;
+//zlicza otrzymane potwierdzenia
 int receivedACKs = 0;
+//inicjacja customowych wiadomości
 void initCustomMessage();
-void *listeningX();
+//void *listeningX();
+//zwraca pozycje w kolejce(narazie dla X)
 int queuePlace(int acks, masters master, int *queue, int *inQue);
+//zarządza procesem X
 void runningX();
 
-
+//tpyowy main
 int main(int argc, char **argv);
 #endif

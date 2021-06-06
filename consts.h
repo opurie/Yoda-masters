@@ -33,11 +33,16 @@
 
 
 struct Message{
+    //nadawca
     int sender;
+    //timestamp
     int timestamp;
+    //typ wiadomości, linijki 16-24
     int type;
+    //zwykle 0, ale jeśli już czeka po odebraniu wszystkich AKCów to odsyła 1, 
+    //aby proces który dopiero wyszedł z hp nie wszedł przed niego w kolejce
     int inQue;
 };
-
+//każdy proces ma przydzieloną jedną wartość
 typedef enum {X=100,Y,Z} masters;
 #endif

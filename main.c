@@ -140,8 +140,8 @@ void runningX(){
     struct Message message;
     state = queueing;
     int k=0, sendedToY=0;
-    //pthread_t thread;
-    //pthread_create(&thread, NULL, listeningX, NULL);
+
+    //początek, proces rozsyła żądanie do Xs aby otrzymać Y
 start:
     incrementTimestamp(0);
     sended_ts = timestamp;
@@ -149,7 +149,7 @@ start:
     receivedACKs = 0;
     queue[id]=sended_ts;
     state = waitingForXs;
-    
+    //pętla zarządzająca odbiorem wiadomości
     while(1){
         message = receiveMessage();
         //Jeśli nie jesteś zakolejkowany inQue=0, jeśli jesteś inQue=1
