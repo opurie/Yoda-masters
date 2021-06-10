@@ -25,9 +25,12 @@ void sendToGroup(int messageType, masters master, int n);
 struct Message receiveMessage();
 
 //możliwe poprawki ale jest spoko narazie
-typedef enum{queueing, waitingForXs, waitingForY, farming} stateX;
+typedef enum{queueing, farming,
+             waitingForX,
+             waitingForY, 
+             waitingForZ} state;
 //ma zapisany aktualny stan procesu X
-stateX state;
+state state;
 //zlicza otrzymane potwierdzenia
 int receivedACKs = 0;
 //inicjacja customowych wiadomości
@@ -35,8 +38,11 @@ void initCustomMessage();
 //void *listeningX();
 //zwraca pozycje w kolejce(narazie dla X)
 int queuePlace(int acks, masters master, int *queue, int *inQue);
-//zarządza procesem X
+
+//zarządzają procesami
 void runningX();
+void runningY();
+void runningZ();
 
 //tpyowy main
 int main(int argc, char **argv);
