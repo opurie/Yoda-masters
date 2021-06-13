@@ -38,7 +38,8 @@ void initCustomMessage();
 //void *listeningX();
 //zwraca pozycje w kolejce(narazie dla X)
 int queuePlace(int acks, masters master, int *queue, int *inQue);
-
+int findX(int k, int *Xs);
+void updateInQue(int k, int *Xs);
 //zarządzają procesami
 void runningX();
 void runningY();

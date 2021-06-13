@@ -207,17 +207,28 @@ start:
     }
 
 }
-
+int findX(int k, int *Xs){
+    for(int i=0;i<countOfX;i++){
+        if(k == Xs[i])
+            return i;
+    }
+    return -1;
+}
+void updateInQue(int k, int *xtab){
+    for(int i=0;i<countOfX;i++){
+        if(xtab[i]>k) xtab[i]--;
+    }
+}
 void runningY(){
     int *queue= malloc(countOfY * sizeof(int));
     int *xtab = malloc(countOfX * sizeof(int));
     char *inQue= malloc(countOfY * sizeof(char)); 
     memset(inQue, 0, countOfY);
-    memset(xtab,0,countOfX);
+    memset(xtab,-1,countOfX);
     memset(queue, 0, countOfY);
     struct Message message;
     state = queueing;
-    int k=0;
+    int k=0, sendedToX=0;
     //helping with table fe. Y_id = 100 in table [100 - yS] 
     int yS = countOfX;
 start:
@@ -241,20 +252,29 @@ start:
                 receivedACKs++;
             inQue[message.sender - yS] = message.inQue;
             incrementTimestamp(message.timestamp);
-            if(receivedACKs == countOfY-1)
+            if(receivedACKs == countOfY-1){   
                 k = queuePlace(receivedACKs, Y, queue, inQue);
-
-                
-            
-
+            }
+            if(k>0 && k <= countOfX && state != waitingForX){
+                incrementTimestamp(0);
+                state = waitingForX; 
+                groupedProcess_id = findX(k, xtab);
+                sendMessage(groupedProcess_id, JOINED,0);
+            }
         }else if(message.type == GROUP_ME){
-
+            incrementTimestamp(message.timestamp);
+            xtab[message.sender] = message.inQue;
         }else if(message.type == RELEASE_Y){
-
+            incrementTimestamp(message.timestamp);
+            inQue[message.sender-yS]=0;
+            updateInQue(message.inQue, xtab);
+            hyperSpace -= 1;
         }else if(message.type == EMPTY){
-
+            incrementTimestamp(message.timestamp);
+            hyperSpace=0;
         }else if(message.type == FULL){
-
+            incrementTimestamp(message.timestamp);
+            hyperSpace = MAX_ENERGY;
         }
     }
 }
