@@ -226,7 +226,7 @@ void updateInQue(int k, int *xtab){
         if(xtab[i] >  k) xtab[i]--;
     }
 }
-bool farmingY(int* k, int* queue, int *inQue, int* xtab){
+char farmingY(int* k, int* queue, int *inQue, int* xtab){
     k = queuePlace(receivedACKs, Y, queue, inQue);
     if(state == queueing){
         printf("[ERROR Y] Y: %d, X: %d\n", id, groupedProcess_id);
@@ -246,14 +246,14 @@ bool farmingY(int* k, int* queue, int *inQue, int* xtab){
         incrementTimestamp(0);
         sendMessage(groupedProcess_id, RELEASE_Y, 0);
         sendToGroup(RELEASE_Y, Y, k);
-        if(hyperSpace-k==0){
+        if(hyperSpace - &k==0){
             incrementTimestamp(0);
             sendToGroup(EMPTY, Y, 0);
             sendToGroup(EMPTY, Z, 0);
         }
-        return true;
+        return 1;
     }
-    return false;
+    return 0;
 }
 void runningY(){
     int *queue= malloc(countOfY * sizeof(int));
@@ -282,7 +282,7 @@ start:
         if(message.type == REQ){
             queue[message.sender - ys] = message.timestamp;
             if(state == farming || state == waitingForX)
-                sendMessage(message.sender, ACK, 1)
+                sendMessage(message.sender, ACK, 1);
             else
                 sendMessage(message.sender, ACK, 0);
         }else if(message.type == ACK){
@@ -345,46 +345,11 @@ secondStart:
         message = receiveMessage();
         //Jeśli nie jesteś zakolejkowany inQue=0, jeśli jesteś inQue=1
         if(message.type == REQ){
-            incrementTimestamp(message.timestamp);
-            queue[message.sender - zs] = 1;
-            if(state == farming || state == waitingForX)
-                sendMessage(message.sender, ACK, 1)
-            else
-                sendMessage(message.sender, ACK, 0);
+
         }else if(message.type == ACK){
-            if(message.timestamp > sended_ts)
-                receivedACKs++;
-            inQue[message.sender - zs] = message.inQue;
-            incrementTimestamp(message.timestamp);
-            if(receivedACKs == countOfY-1){   
-                k = queuePlace(receivedACKs, Z, queue, inQue);
-            }
-            if(k>0 && k <= countOfZ && state != waitingForX){
-                incrementTimestamp(0);
-                state = waitingForX; 
-                groupedProcess_id = findX(k, xtab);
-                if(groupedProcess_id >= 0){
-                    sendMessage(groupedProcess_id, JOINED,0);
-                    state = farming;
-                    //Można dać jakiegoś sleepa()                 ;;;;;;;;;;;;;;;;;;;;;
-                    if(k<hyperSpace){
-                        incrementTimestamp(0);
-                        sendMessage(groupedProcess_id, RELEASE_Y,0);
-                        sendToGroup(RELEASE_Y, Y, k);
-                        state = queueing;
-                        hyperSpace--;
-                        if(hyperSpace - k == 0){//np. hyperspace=10, kolejka ={0..9}
-                            incrementTimestamp(0);
-                            sendToGroup(EMPTY, Y, 0);
-                            sendToGroup(EMPTY, Z, 0);
-                        }
-                        goto start;
-                    }
-                }
-            }        
+            
         }else if(message.type == RELEASE_Z){
-            incrementTimestamp(message.timestamp);
-            inQue[message.sender - zs] = 0;
+
         }else if(message.type == FULL){
             incrementTimestamp(message.timestamp);
             state = chilling;
