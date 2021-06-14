@@ -383,6 +383,7 @@ secondStart:
             printf("[Z - %d] farming, hyperspace - %d\n", id, hyperSpace);
                state = farming;
                incrementTimestamp(0);
+               sleep(1);
                hyperSpace++;
                sendToGroup(RELEASE_Z, Z, 0); 
                if(hyperSpace + k == MAX_ENERGY - 1){
@@ -405,6 +406,7 @@ secondStart:
                 state = farming;
                 printf("[Z - %d] farming, hyperspace - %d\n", id, hyperSpace);
                 incrementTimestamp(0);
+                sleep(1);
                 hyperSpace++;
                 sendToGroup(RELEASE_Z, Z, 0);
                 if(hyperSpace + k == MAX_ENERGY - 1){
