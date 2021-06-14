@@ -91,8 +91,8 @@ int queuePlace(int acks, masters master, int *queue, int *inQue){
                 k++;
             else if(queue[i] == sended_ts && i < id)
                 k++;
-           // else if(queue[i] >= sended_ts && inQue[i]==1)
-         //       k++;
+            else if(queue[i] >= sended_ts && inQue[i]==1)
+                k++;
         }
     }
     if(master == Y){
@@ -102,8 +102,8 @@ int queuePlace(int acks, masters master, int *queue, int *inQue){
                 k++;
             else if(queue[i] == sended_ts && i < id - ys )
                 k++;
-  //          else if(queue[i] >= sended_ts && inQue[i]==1)
-//                k++;
+            else if(queue[i] >= sended_ts && inQue[i]==1)
+                k++;
         }
     }
     if(master == Z){
@@ -135,7 +135,7 @@ start:
     sendToGroup(REQ, X, 0);
     receivedACKs = 0;
     queue[id]=sended_ts;
-    state = waitingForX;
+    state = queueing;
     groupedProcess_id = -1;
     int k=0, sendedToY=0;
     //pętla zarządzająca odbiorem wiadomości
