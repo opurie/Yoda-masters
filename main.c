@@ -245,7 +245,7 @@ char farmingY(int k, int* queue, int *inQue, int* xtab){
     if(state == beforeFarming && k <= hyperSpace){
         printf("[Y - %d] farming, x - %d, hyperspace - %d\n", id, groupedProcess_id, hyperSpace);
         state = farming;
-        sleep(500);
+        sleep(1);
         hyperSpace--;
         incrementTimestamp(0);
         sendMessage(groupedProcess_id, RELEASE_Y, 0);
