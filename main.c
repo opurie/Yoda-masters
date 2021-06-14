@@ -91,8 +91,8 @@ int queuePlace(int acks, masters master, int *queue, int *inQue){
                 k++;
             else if(queue[i] == sended_ts && i < id)
                 k++;
-            else if(queue[i] >= sended_ts && inQue[i]==1)
-                k++;
+           // else if(queue[i] >= sended_ts && inQue[i]==1)
+         //       k++;
         }
     }
     if(master == Y){
@@ -102,8 +102,8 @@ int queuePlace(int acks, masters master, int *queue, int *inQue){
                 k++;
             else if(queue[i] == sended_ts && i < id - ys )
                 k++;
-            else if(queue[i] >= sended_ts && inQue[i]==1)
-                k++;
+  //          else if(queue[i] >= sended_ts && inQue[i]==1)
+//                k++;
         }
     }
     if(master == Z){
@@ -119,39 +119,6 @@ int queuePlace(int acks, masters master, int *queue, int *inQue){
     }
     return k;
 }
-/*void *listeningX(){
-    struct Message message;
-    int k;
-    while(1){
-        message = receiveMessage();
-        if(message.type == REQ){
-            pthread_mutex_lock(&tsMutex);
-            incrementTimestamp(message.timestamp);
-            queue[message.sender] = message.timestamp;
-            inQue[message.sender] = 1;
-            sendMessage(message.sender, ACK);
-            pthread_mutex_unlock(&tsMutex);
-        }else if(message.type == ACK){
-            if(message.timestamp>sended_ts)
-                receivedACKs++;
-                k = queuePlace(receivedACKs, X);
-                if(k==0) continue;
-                if(k <= countOfY){
-                    pthread_mutex_lock(&tsMutex);
-                    incrementTimestamp(message.timestamp);
-                    state = waitingForY;
-                    sendToGroup(GROUP_ME, Y);
-                    pthread_mutex_unlock(&tsMutex);
-                }
-        }else if(message.type == RELEASE_X){
-            inQue[message.sender]=0;
-        }else if(message.type == JOINED){
-            state = farming;
-        }else if(message.type == RELEASE_Y){
-            state = queueing;
-        }
-    }
-}*/
 void runningX(){
     int *queue= malloc(countOfX * sizeof(int));
     char *inQue= malloc(countOfX * sizeof(char)); 
@@ -238,11 +205,11 @@ char farmingY(int k, int* queue, int *inQue, int* xtab){
         if(groupedProcess_id>=0){
             incrementTimestamp(0);
             sendMessage(groupedProcess_id, JOINED, 0);
-            printf("[Y - %d] beforeFarming, x - %d, k - %d\n", id, groupedProcess_id, k);
-            state = beforeFarming;
+            printf("[Y - %d] readyToFarm, x - %d, k - %d\n", id, groupedProcess_id, k);
+            state = readyToFarm;
         }
     }
-    if(state == beforeFarming && k <= hyperSpace){
+    if(state == readyToFarm && k <= hyperSpace){
         printf("[Y - %d] farming, x - %d, hyperspace - %d\n", id, groupedProcess_id, hyperSpace);
         state = farming;
         sleep(1);
@@ -287,7 +254,7 @@ start:
         incrementTimestamp(message.timestamp);
         if(message.type == REQ){
             queue[message.sender - ys] = message.timestamp;
-            if(state == beforeFarming || state == farming || state == waitingForX)
+            if(state == readyToFarm || state == farming || state == waitingForX)
                 sendMessage(message.sender, ACK, 1);
             else
                 sendMessage(message.sender, ACK, 0);
@@ -366,7 +333,7 @@ secondStart:
         //Jeśli nie jesteś zakolejkowany inQue=0, jeśli jesteś inQue=1
         if(message.type == REQ){
             queue[message.sender - zs] = message.timestamp;
-            if(state == beforeFarming || state == farming){
+            if(state == readyToFarm || state == farming){
                 sendMessage(message.sender, ACK, 1);
             }else{
                 sendMessage(message.sender, ACK, 0);
@@ -377,7 +344,7 @@ secondStart:
             inQue[message.sender - zs] = message.inQue;
             if(receivedACKs == countOfZ - 1){
                 k = queuePlace(receivedACKs, Z, queue, inQue);
-                state = beforeFarming;
+                state = readyToFarm;
             }
             if(k>0 && k + hyperSpace <= MAX_ENERGY){
             printf("[Z - %d] farming, hyperspace - %d\n", id, hyperSpace);

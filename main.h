@@ -24,12 +24,11 @@ void sendMessage(int receiver, int type, int in);
 void sendToGroup(int messageType, masters master, int n);
 struct Message receiveMessage();
 
-//możliwe poprawki ale jest spoko narazie
-typedef enum{queueing, beforeFarming, farming, chilling,
+typedef enum{queueing, readyToFarm, farming, chilling,
              waitingForX,
              waitingForY, 
              waitingForZ} State;
-             
+
 //ma zapisany aktualny stan procesu X
 State state;
 //zlicza otrzymane potwierdzenia
