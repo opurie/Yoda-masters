@@ -229,7 +229,7 @@ int findX(int k, int *xtab){
 void updateInQue(int k, int *xtab){
     int j = xtab[k];
     for(int i=0;i<countOfX;i++){
-        else if(xtab[i] > j) xtab[i]--;
+        if(xtab[i] > j) xtab[i]--;
     }
 }
 char farmingY(int k, int* queue, int *inQue, int* xtab){
