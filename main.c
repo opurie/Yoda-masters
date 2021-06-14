@@ -253,7 +253,7 @@ start:
         message = receiveMessage();
         incrementTimestamp(message.timestamp);
         if(receivedACKs == countOfY-1){   
-            printf("[Y - %d] ACKSSSSSSSSS");
+            printf("[Y - %d] ACKSSSSSSSSS\n");
         }
         if(message.type == REQ){
             queue[message.sender - ys] = message.timestamp;
