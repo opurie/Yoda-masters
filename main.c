@@ -170,6 +170,7 @@ start:
     receivedACKs = 0;
     queue[id]=sended_ts;
     state = waitingForX;
+    groupedProcess_id = -1
     //pętla zarządzająca odbiorem wiadomości
     while(1){
         message = receiveMessage();
@@ -207,6 +208,8 @@ start:
         }else if(message.type == JOINED){
             state = farming;
             printf("[X - %d] farming, k - %d, Y - %d\n", id, k, message.sender);
+            if(groupedProcess_id > 0)
+                printf("[ERROR X - %d] grouped - %d, want to group - %d", id, groupedProcess_id, message.sender);
             groupedProcess_id = message.sender;
         }else if(message.type == RELEASE_Y){
             incrementTimestamp(0);
