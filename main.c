@@ -129,7 +129,7 @@ void runningX(){
 
     //początek, proces rozsyła żądanie do Xs aby otrzymać Y
 start:
-    printf("[X - %d] waitingForX \t\t\t %d\n", id, timestamp);
+    printf("[X - %d] waitingForX\n", id);
     incrementTimestamp(0);
     sended_ts = timestamp;
     sendToGroup(REQ, X, 0);
@@ -153,30 +153,30 @@ start:
                 receivedACKs++;
             inQue[message.sender] = message.inQue;
             if(receivedACKs==countOfX-1){
-                k = queuePlace( X, queue, inQue);}
+                k = queuePlace(X, queue, inQue);}
             if(k>0 && k <= countOfY && sendedToY==0){
                 incrementTimestamp(0);
                 sendToGroup(GROUP_ME, Y, k);
-                printf("[X - %d] waitingForY, k - %d \t\t\t %d\n", id, k, timestamp);
+                printf("[X - %d] waitingForY, k - %d\n", id, k);
                 state = waitingForY;
                 sendedToY=1;
             }
         }else if(message.type == RELEASE_X){
             inQue[message.sender] = 0;
             if(receivedACKs == countOfX - 1)
-                k = queuePlace( X, queue, inQue);
+                k = queuePlace(X, queue, inQue);
             if(k>0 && k <= countOfY && sendedToY==0){
                 incrementTimestamp(message.timestamp);
                 sendToGroup(GROUP_ME, Y, k);
-                printf("[X - %d] waitingForY, k - %d \t\t\t %d\n", id, k, timestamp);
+                printf("[X - %d] waitingForY, k - %d\n", id, k);
                 state = waitingForY;
                 sendedToY=1;
             }
         }else if(message.type == JOINED){
             state = farming;
-            printf("[X - %d] farming, Y - %d, k - %d \t\t\t %d\n", id, message.sender, k, timestamp);
+            printf("[X - %d] farming, Y - %d, k - %d\n", id, message.sender, k);
             if(groupedProcess_id > 0)
-                printf("[ERROR X - %d] grouped - %d, want to group - %d \t\t\t %d\n", id, groupedProcess_id, message.sender, timestamp);
+                printf("[ERROR X - %d] grouped - %d, want to group - %d\n", id, groupedProcess_id, message.sender);
             groupedProcess_id = message.sender;
         }else if(message.type == RELEASE_Y){
             incrementTimestamp(0);
@@ -214,7 +214,7 @@ char farmingY(int k, int* queue, int *inQue, int* xtab){
         incrementTimestamp(0);
         sendMessage(groupedProcess_id, JOINED, 0);
 
-        printf("[Y - %d] farming, x - %d, hyperspace - %d - 1\t\t\t %d\n", id, groupedProcess_id, hyperSpace, timestamp);
+        printf("\t\t\t\t[Y - %d] farming, x - %d, hyperspace - %d - 1\n", id, groupedProcess_id, hyperSpace);
         state = farming;
         hyperSpace--;
         incrementTimestamp(0);
@@ -222,7 +222,7 @@ char farmingY(int k, int* queue, int *inQue, int* xtab){
         sendToGroup(RELEASE_Y, Y, groupedProcess_id);
         if(hyperSpace - k == 0){
             incrementTimestamp(0);
-            printf("[Y - %d] \t\t\tEMPTY\t\t\t %d\n",id, timestamp);
+            printf("\t\t\t\t[Y - %d] EMPTY\n",id);
             sendToGroup(EMPTY, Y, 0);
             sendToGroup(EMPTY, Z, 0);
         }
@@ -244,7 +244,7 @@ void runningY(){
     
     int ys = countOfX;
 start:
-    printf("[Y - %d] queueing \t\t\t %d\n", id, timestamp);
+    printf("\t\t\t\t[Y - %d] queueing\n", id);
     state = queueing;
     incrementTimestamp(0);
     sended_ts = timestamp;
@@ -320,7 +320,7 @@ void runningZ(){
     goto secondStart;
     //początek, proces rozsyła żądanie do Xs aby otrzymać Y
 start:
-    printf("[Z - %d] queueing \t\t\t %d\n", id, timestamp);
+    printf("\t\t\t\t\t\t\t\t[Z - %d] queueing\n", id);
     incrementTimestamp(0);
     sended_ts = timestamp;
     sendToGroup(REQ, Z, 0);
@@ -350,7 +350,7 @@ secondStart:
                 state = readyToFarm;
             }
             if(k>0 && k + hyperSpace <= MAX_ENERGY){
-                printf("[Z - %d] farming, hyperspace - %d \t\t\t %d\n", id, hyperSpace, timestamp);
+                printf("\t\t\t\t\t\t\t\t[Z - %d] farming, hyperspace - %d\n", id, hyperSpace);
                state = farming;
                incrementTimestamp(0);
                hyperSpace++;
@@ -373,7 +373,7 @@ secondStart:
                 k = queuePlace(Z, queue, inQue);
             if(k > 0 && k + hyperSpace <= MAX_ENERGY){
                 state = farming;
-                printf("[Z - %d] farming, hyperspace - %d \t\t\t %d\n", id, hyperSpace, timestamp);
+                printf("\t\t\t\t\t\t\t\t[Z - %d] farming, hyperspace - %d\n", id, hyperSpace);
                 incrementTimestamp(0);
                 hyperSpace++;
                 sendToGroup(RELEASE_Z, Z, 0);
@@ -390,6 +390,7 @@ secondStart:
             }
 
         }else if(message.type == FULL){
+            printf("\t\t\t\t\t\t\t\t[Z - %d] chilling\n", id);
             state = chilling;
             hyperSpace = MAX_ENERGY;
             goto secondStart;
