@@ -190,7 +190,7 @@ start:
             if(k>0 && k <= countOfY && sendedToY==0){
                 incrementTimestamp(0);
                 sendToGroup(GROUP_ME, Y, k);
-                printf("[X - %d] waitingForY, k - %d ----------------------\n", id, k);
+                printf("[X - %d] waitingForY, k - %d\n", id, k);
                 state = waitingForY;
                 sendedToY=1;
             }
@@ -245,6 +245,7 @@ char farmingY(int k, int* queue, int *inQue, int* xtab){
     if(state == beforeFarming && k <= hyperSpace){
         printf("[Y - %d] farming, x - %d, hyperspace - %d\n", id, groupedProcess_id, hyperSpace);
         state = farming;
+        sleep(500);
         hyperSpace--;
         incrementTimestamp(0);
         sendMessage(groupedProcess_id, RELEASE_Y, 0);
