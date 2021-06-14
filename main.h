@@ -28,9 +28,9 @@ struct Message receiveMessage();
 typedef enum{queueing, beforeFarming, farming, chilling,
              waitingForX,
              waitingForY, 
-             waitingForZ} state;
+             waitingForZ} State;
 //ma zapisany aktualny stan procesu X
-state state;
+State state;
 //zlicza otrzymane potwierdzenia
 int receivedACKs = 0;
 //inicjacja customowych wiadomości
