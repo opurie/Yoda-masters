@@ -39,7 +39,7 @@ void initCustomMessage();
 //zwraca pozycje w kolejce(narazie dla X)
 int queuePlace(int acks, masters master, int *queue, int *inQue);
 int findX(int k, int *Xs);
-char farmingY(int *k, int* queue, int *inQue, int* xtab);
+char farmingY(int* queue, int *inQue, int* xtab);
 void updateInQue(int k, int *Xs);
 //zarządzają procesami
 void runningX();

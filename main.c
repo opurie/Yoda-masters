@@ -96,7 +96,6 @@ int queuePlace(int acks, masters master, int *queue, int *inQue){
         }
     }
     if(master == Y){
-        //state
         for(int i = 0; i<countOfY; i++){
             if(id - ys == i) continue;
             if(queue[i] < sended_ts)
@@ -226,8 +225,7 @@ void updateInQue(int k, int *xtab){
         if(xtab[i] >  k) xtab[i]--;
     }
 }
-char farmingY(int* k, int* queue, int *inQue, int* xtab){
-    k = queuePlace(receivedACKs, Y, queue, inQue);
+char farmingY(int k, int* queue, int *inQue, int* xtab){
     if(state == queueing){
         printf("[ERROR Y] Y: %d, X: %d\n", id, groupedProcess_id);
         exit(-1);
@@ -246,7 +244,7 @@ char farmingY(int* k, int* queue, int *inQue, int* xtab){
         incrementTimestamp(0);
         sendMessage(groupedProcess_id, RELEASE_Y, 0);
         sendToGroup(RELEASE_Y, Y, k);
-        if(hyperSpace - &k==0){
+        if(hyperSpace - k == 0){
             incrementTimestamp(0);
             sendToGroup(EMPTY, Y, 0);
             sendToGroup(EMPTY, Z, 0);
@@ -281,7 +279,7 @@ start:
         incrementTimestamp(message.timestamp);
         if(message.type == REQ){
             queue[message.sender - ys] = message.timestamp;
-            if(state == farming || state == waitingForX)
+            if(state == beforeFarming || state == farming || state == waitingForX)
                 sendMessage(message.sender, ACK, 1);
             else
                 sendMessage(message.sender, ACK, 0);
@@ -291,7 +289,8 @@ start:
             inQue[message.sender - ys] = message.inQue;
             if(receivedACKs == countOfY-1){   
                 state = waitingForX;
-                if(farmingY(k,queue,inQue, xtab)){
+                int k = queuePlace(receivedACKs, Y, queue, inQue);
+                if(farmingY(k, queue, inQue, xtab)){
                     state = queueing;
                     goto start;
                 }
@@ -299,7 +298,8 @@ start:
             
         }else if(message.type == GROUP_ME){
             xtab[message.sender] = message.inQue;
-            if(farmingY(k,queue,inQue, xtab)){
+            int k = queuePlace(receivedACKs, Y, queue, inQue);
+            if(farmingY(k, queue, inQue, xtab)){
                 state = queueing;
                 goto start;
             }
@@ -307,9 +307,10 @@ start:
         }else if(message.type == RELEASE_Y){
             inQue[message.sender-ys]=0;
             updateInQue(message.inQue, xtab);
+            int k = queuePlace(receivedACKs, Y, queue, inQue);
             if(hyperSpace>0)
                 hyperSpace -= 1;
-            if(farmingY(k,queue,inQue, xtab)){
+            if(farmingY(k, queue, inQue, xtab)){
                 state = queueing;
                 goto start;
             }
