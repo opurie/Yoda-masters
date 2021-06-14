@@ -251,7 +251,7 @@ char farmingY(int k, int* queue, int *inQue, int* xtab){
         sendToGroup(RELEASE_Y, Y, groupedProcess_id);
         if(hyperSpace - k == 0){
             incrementTimestamp(0);
-            printf("[Y - %d] EMPTY",id);
+            printf("[Y - %d] EMPTY\n",id);
             sendToGroup(EMPTY, Y, 0);
             sendToGroup(EMPTY, Z, 0);
         }
