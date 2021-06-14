@@ -153,7 +153,7 @@ start:
                 receivedACKs++;
             inQue[message.sender] = message.inQue;
             if(receivedACKs==countOfX-1){
-                k = queuePlace(receivedACKs, X, queue, inQue);}
+                k = queuePlace( X, queue, inQue);}
             if(k>0 && k <= countOfY && sendedToY==0){
                 incrementTimestamp(0);
                 sendToGroup(GROUP_ME, Y, k);
@@ -164,7 +164,7 @@ start:
         }else if(message.type == RELEASE_X){
             inQue[message.sender] = 0;
             if(receivedACKs == countOfX - 1)
-                k = queuePlace(receivedACKs, X, queue, inQue);
+                k = queuePlace( X, queue, inQue);
             if(k>0 && k <= countOfY && sendedToY==0){
                 incrementTimestamp(message.timestamp);
                 sendToGroup(GROUP_ME, Y, k);
