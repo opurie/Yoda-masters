@@ -209,7 +209,7 @@ start:
             state = farming;
             printf("[X - %d] farming, Y - %d, k - %d\n", id, message.sender, k);
             if(groupedProcess_id > 0)
-                printf("[ERROR X - %d] grouped - %d, want to group - %d", id, groupedProcess_id, message.sender);
+                printf("[ERROR X - %d] grouped - %d, want to group - %d\n", id, groupedProcess_id, message.sender);
             groupedProcess_id = message.sender;
         }else if(message.type == RELEASE_Y){
             incrementTimestamp(0);
@@ -376,6 +376,7 @@ int main(int argc, char **argv){
     MPI_Comm_rank(MPI_COMM_WORLD, &id);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
     init();
+    printf("hyper %d\n", hyperSpace);
     if(master == X)
         runningX();
     if(master == Y)
