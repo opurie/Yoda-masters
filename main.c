@@ -343,6 +343,7 @@ void runningZ(){
     goto secondStart;
     //początek, proces rozsyła żądanie do Xs aby otrzymać Y
 start:
+    printf("[Z - %d] queueing\n", id);
     incrementTimestamp(0);
     sended_ts = timestamp;
     sendToGroup(REQ, Z, 0);
@@ -372,6 +373,7 @@ secondStart:
                 state = beforeFarming;
             }
             if(k>0 && k + hyperSpace <= MAX_ENERGY){
+                printf("[Z - %d] farming, hyperspace - %d\n", id, hyperSpace);
                state = farming;
                incrementTimestamp(0);
                hyperSpace++;
@@ -394,6 +396,7 @@ secondStart:
                 k = queuePlace(receivedACKs, Z, queue, inQue);
             if(k > 0 && k + hyperSpace <= MAX_ENERGY){
                 state = farming;
+                printf("[Z - %d] farming, hyperspace - %d\n", id, hyperSpace);
                 incrementTimestamp(0);
                 hyperSpace++;
                 sendToGroup(RELEASE_Z, Z, 0);
@@ -410,6 +413,7 @@ secondStart:
             }
 
         }else if(message.type == FULL){
+            printf("[Z - %d] chilling\n", id);
             state = chilling;
             hyperSpace = MAX_ENERGY;
             goto secondStart;
