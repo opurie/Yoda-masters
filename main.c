@@ -186,21 +186,23 @@ start:
             inQue[message.sender] = message.inQue;
             if(receivedACKs==countOfX-1){
                 k = queuePlace(receivedACKs, X, queue, inQue);}
-            if(k>0 && k <= countOfY && !(state == waitingForY || state == farming)){
+            if(k>0 && k <= countOfY && sendedToY==0){
                 incrementTimestamp(0);
                 sendToGroup(GROUP_ME, Y, k);
                 printf("[X - %d] waitingForY, k - %d\n", id, k);
                 state = waitingForY;
+                sendedToY=1;
             }
         }else if(message.type == RELEASE_X){
             inQue[message.sender]=0;
             if(receivedACKs==countOfX-1)
                 k = queuePlace(receivedACKs, X, queue, inQue);
-            if(k>0 && k <= countOfY && !(state == waitingForY || state == farming)){
+            if(k>0 && k <= countOfY && sendedToY==0){
                 incrementTimestamp(message.timestamp);
                 sendToGroup(GROUP_ME, Y, k);
                 printf("[X - %d] waitingForY, k - %d\n", id, k);
                 state = waitingForY;
+                sendedToY=1;
             }
         }else if(message.type == JOINED){
             state = farming;
