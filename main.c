@@ -200,7 +200,7 @@ void updatextab(int k, int *xtab){
     }
 }
 char farmingY(int k, int* queue, int *inQue, int* xtab){
-    if(state == waitingForX){
+    /*if(state == waitingForX){
         groupedProcess_id = findX(k, xtab);
         if(groupedProcess_id>=0){
             incrementTimestamp(0);
@@ -208,8 +208,12 @@ char farmingY(int k, int* queue, int *inQue, int* xtab){
             printf("[Y - %d] readyToFarm, x - %d, k - %d\n", id, groupedProcess_id, k);
             state = readyToFarm;
         }
-    }
-    if(state == readyToFarm && k <= hyperSpace){
+    }*/
+    groupedProcess_id = findX(k, xtab);
+    if(state == waitingForX && k <= hyperSpace && groupedProcess_id != -1){
+        incrementTimestamp(0);
+        sendMessage(groupedProcess_id, JOINED, 0);
+
         printf("[Y - %d] farming, x - %d, hyperspace - %d - 1\n", id, groupedProcess_id, hyperSpace);
         state = farming;
         hyperSpace--;
