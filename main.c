@@ -264,12 +264,12 @@ void runningY(){
     memset(queue, 0, countOfY);
 
     struct Message message;
-    state = queueing;
     int k=0, sendedToX=0;
     
     int ys = countOfX;
 start:
     printf("[Y - %d] queueing\n", id);
+    state = queueing;
     incrementTimestamp(0);
     sended_ts = timestamp;
     sendToGroup(REQ, Y, 0);
@@ -300,7 +300,8 @@ start:
             
         }else if(message.type == GROUP_ME){
             xtab[message.sender] = message.inQue;
-            int k = queuePlace(receivedACKs, Y, queue, inQue);
+            if(receivedACKs == countOfY-1)
+                int k = queuePlace(receivedACKs, Y, queue, inQue);
             if(farmingY(k, queue, inQue, xtab)==1){
                 state = queueing;
                 goto start;
@@ -309,7 +310,8 @@ start:
         }else if(message.type == RELEASE_Y){
             inQue[message.sender-ys]=0;
             updateInQue(message.inQue, xtab);
-            int k = queuePlace(receivedACKs, Y, queue, inQue);
+            if(receivedACKs == countOfY-1)
+                int k = queuePlace(receivedACKs, Y, queue, inQue);
             if(hyperSpace>0)
                 hyperSpace -= 1;
             if(farmingY(k, queue, inQue, xtab)==1){
