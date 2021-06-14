@@ -28,7 +28,7 @@
 #define Y_MASTERS 0.35
 #define Z_MASTERS 0.3
 
-#define MAX_ENERGY 20
+#define MAX_ENERGY 10
 #define MIN_ENERGY 0
 
 
