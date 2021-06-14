@@ -296,7 +296,6 @@ start:
             }
             
         }else if(message.type == EMPTY){
-            hyperSpace=0;
         }else if(message.type == FULL){
             hyperSpace = MAX_ENERGY;
             if(receivedACKs == countOfY-1)
@@ -392,11 +391,8 @@ secondStart:
         }else if(message.type == FULL){
             printf("\t\t\t\t\t\t\t\t[Z - %d] chilling\n", id);
             state = chilling;
-            hyperSpace = MAX_ENERGY;
             goto secondStart;
         }else if(message.type == EMPTY){
-            memset(inQue, 0, countOfZ);
-            memset(queue, 0, countOfZ);
             state = queueing;
             hyperSpace = 0;
             goto start;
