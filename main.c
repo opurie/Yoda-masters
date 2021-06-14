@@ -281,7 +281,7 @@ start:
     while(1){
         message = receiveMessage();
         incrementTimestamp(message.timestamp);
-        if(message.type == REQ){
+        if(message.type == REQ){printf("[Y - %d] got req from %d\n", id, message.sender);
             queue[message.sender - ys] = message.timestamp;
             if(state == beforeFarming || state == farming || state == waitingForX)
                 sendMessage(message.sender, ACK, 1);
