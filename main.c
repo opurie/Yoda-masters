@@ -291,7 +291,7 @@ start:
             inQue[message.sender - ys] = message.inQue;
             if(receivedACKs == countOfY-1){   
                 state = waitingForX;
-                int k = queuePlace(receivedACKs, Y, queue, inQue);
+                k = queuePlace(receivedACKs, Y, queue, inQue);
                 if(farmingY(k, queue, inQue, xtab)==1){
                     state = queueing;
                     goto start;
@@ -301,7 +301,7 @@ start:
         }else if(message.type == GROUP_ME){
             xtab[message.sender] = message.inQue;
             if(receivedACKs == countOfY-1)
-                int k = queuePlace(receivedACKs, Y, queue, inQue);
+                k = queuePlace(receivedACKs, Y, queue, inQue);
             if(farmingY(k, queue, inQue, xtab)==1){
                 state = queueing;
                 goto start;
@@ -311,7 +311,7 @@ start:
             inQue[message.sender-ys]=0;
             updateInQue(message.inQue, xtab);
             if(receivedACKs == countOfY-1)
-                int k = queuePlace(receivedACKs, Y, queue, inQue);
+                k = queuePlace(receivedACKs, Y, queue, inQue);
             if(hyperSpace>0)
                 hyperSpace -= 1;
             if(farmingY(k, queue, inQue, xtab)==1){
