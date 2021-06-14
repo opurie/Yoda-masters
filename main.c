@@ -226,7 +226,7 @@ int findX(int k, int *xtab){
     }
     return -1;
 }
-void updateInQue(int k, int *xtab){
+void updatextab(int k, int *xtab){
     int j = xtab[k];
     for(int i=0;i<countOfX;i++){
         if(xtab[i] > j) xtab[i]--;
@@ -251,6 +251,7 @@ char farmingY(int k, int* queue, int *inQue, int* xtab){
         sendToGroup(RELEASE_Y, Y, groupedProcess_id);
         if(hyperSpace - k == 0){
             incrementTimestamp(0);
+            printf("[Y - %d] EMPTY",id);
             sendToGroup(EMPTY, Y, 0);
             sendToGroup(EMPTY, Z, 0);
         }
@@ -312,7 +313,7 @@ start:
 
         }else if(message.type == RELEASE_Y){
             inQue[message.sender-ys]=0;
-            updateInQue(message.inQue, xtab);
+            updatextab(message.inQue, xtab);
             if(receivedACKs == countOfY-1)
                 k = queuePlace(receivedACKs, Y, queue, inQue);
             if(hyperSpace>0)
