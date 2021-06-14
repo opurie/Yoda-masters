@@ -219,7 +219,7 @@ char farmingY(int k, int* queue, int *inQue, int* xtab){
         if(hyperSpace - k == 0){
             incrementTimestamp(0);
             printf("[Y - %d] =======EMPTY========\n",id);
-            sendToGroup(EMPTY, Y, 0);
+            usleep(500);
             sendToGroup(EMPTY, Z, 0);
         }
         return 1;
@@ -345,12 +345,13 @@ secondStart:
                 state = readyToFarm;
             }
             if(k>0 && k + hyperSpace <= MAX_ENERGY){
-                printf("\t\t\t\t\t\t\t\t[Z - %d] farming, hyperspace - %d\n", id, hyperSpace);
+                printf("\t\t\t\t\t\t[Z - %d] farming, hyperspace - %d\n", id, hyperSpace);
                state = farming;
                incrementTimestamp(0);
                hyperSpace++;
                sendToGroup(RELEASE_Z, Z, 0); 
                if(hyperSpace + k == MAX_ENERGY - 1){
+                   usleep(500);
                     sendToGroup(FULL, Z, 0);
                     sendToGroup(FULL, Y, 0);
                     memset(inQue, 0, countOfZ);
@@ -368,11 +369,12 @@ secondStart:
                 k = queuePlace(Z, queue, inQue);
             if(k > 0 && k + hyperSpace <= MAX_ENERGY){
                 state = farming;
-                printf("\t\t\t\t\t\t\t\t[Z - %d] farming, hyperspace - %d\n", id, hyperSpace);
+                printf("\t\t\t\t\t\t[Z - %d] farming, hyperspace - %d\n", id, hyperSpace);
                 incrementTimestamp(0);
                 hyperSpace++;
                 sendToGroup(RELEASE_Z, Z, 0);
                 if(hyperSpace + k == MAX_ENERGY - 1){
+                    usleep(500);
                     sendToGroup(FULL, Z, 0);
                     sendToGroup(FULL, Y, 0);
                     memset(inQue, 0, countOfZ);
@@ -385,7 +387,7 @@ secondStart:
             }
 
         }else if(message.type == FULL){
-            printf("\t\t\t\t\t\t\t\t[Z - %d] chilling\n", id);
+            printf("\t\t\t\t\t\t[Z - %d] chilling\n", id);
             state = chilling;
             goto secondStart;
         }else if(message.type == EMPTY){
