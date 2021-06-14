@@ -222,6 +222,7 @@ char farmingY(int k, int* queue, int *inQue, int* xtab){
         sendToGroup(RELEASE_Y, Y, groupedProcess_id);
         if(hyperSpace - k == 0){
             incrementTimestamp(0);
+            sleep(1);
             printf("\t\t\t\t[Y - %d] EMPTY\n",id);
             sendToGroup(EMPTY, Y, 0);
             sendToGroup(EMPTY, Z, 0);
@@ -378,6 +379,7 @@ secondStart:
                 hyperSpace++;
                 sendToGroup(RELEASE_Z, Z, 0);
                 if(hyperSpace + k == MAX_ENERGY - 1){
+                    sleep(1);
                     sendToGroup(FULL, Z, 0);
                     sendToGroup(FULL, Y, 0);
                     memset(inQue, 0, countOfZ);
