@@ -235,10 +235,12 @@ char farmingY(int k, int* queue, int *inQue, int* xtab){
         if(groupedProcess_id>=0){
             incrementTimestamp(0);
             sendMessage(groupedProcess_id, JOINED, 0);
+            printf("[Y - %d] beforeFarming, x - %d, k - %d\n", id, groupedProcess_id, k);
             state = beforeFarming;
         }
     }
     if(state == beforeFarming && k <= hyperSpace){
+        printf("[Y - %d] farming, x - %d, hyperspace - %d\n", id, groupedProcess_id, hyperSpace);
         state = farming;
         hyperSpace--;
         incrementTimestamp(0);
@@ -267,11 +269,13 @@ void runningY(){
     
     int ys = countOfX;
 start:
+    printf("[Y - %d] queueing\n", id);
     incrementTimestamp(0);
     sended_ts = timestamp;
     sendToGroup(REQ, Y, 0);
     receivedACKs = 0;
     queue[id-ys]=sended_ts;
+    printf("[Y - %d] waitingForY\n", id);
     state = waitingForY;
     k=0;
     while(1){
