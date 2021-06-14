@@ -170,7 +170,7 @@ start:
     receivedACKs = 0;
     queue[id]=sended_ts;
     state = waitingForX;
-    groupedProcess_id = -1
+    groupedProcess_id = -1;
     //pętla zarządzająca odbiorem wiadomości
     while(1){
         message = receiveMessage();
