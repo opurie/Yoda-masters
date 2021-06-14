@@ -373,7 +373,7 @@ secondStart:
                 state = beforeFarming;
             }
             if(k>0 && k + hyperSpace <= MAX_ENERGY){
-                printf("[Z - %d] farming, hyperspace - %d\n", id, hyperSpace);
+            printf("[Z - %d] farming, hyperspace - %d\n", id, hyperSpace);
                state = farming;
                incrementTimestamp(0);
                hyperSpace++;
@@ -418,7 +418,6 @@ secondStart:
             hyperSpace = MAX_ENERGY;
             goto secondStart;
         }else if(message.type == EMPTY){
-            printf("[Z - %d] EMPTY---------------------------------\n", id);
             memset(inQue, 0, countOfZ);
             memset(queue, 0, countOfZ);
             state = queueing;
