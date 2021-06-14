@@ -329,6 +329,12 @@ start:
             hyperSpace=0;
         }else if(message.type == FULL){
             hyperSpace = MAX_ENERGY;
+            if(receivedACKs == countOfY-1)
+                k = queuePlace(receivedACKs, Y, queue, inQue);
+            if(farmingY(k, queue, inQue, xtab)==1){
+                state = queueing;
+                goto start;
+            }
         }
     }
 }
