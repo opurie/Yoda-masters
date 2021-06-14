@@ -227,9 +227,9 @@ int findX(int k, int *xtab){
     return -1;
 }
 void updateInQue(int k, int *xtab){
+    int j = xtab[k];
     for(int i=0;i<countOfX;i++){
-        if(xtab[i] == k) xtab[i] = 0;
-        if(xtab[i] >  k) xtab[i]--;
+        else if(xtab[i] > j) xtab[i]--;
     }
 }
 char farmingY(int k, int* queue, int *inQue, int* xtab){
@@ -248,7 +248,7 @@ char farmingY(int k, int* queue, int *inQue, int* xtab){
         hyperSpace--;
         incrementTimestamp(0);
         sendMessage(groupedProcess_id, RELEASE_Y, 0);
-        sendToGroup(RELEASE_Y, Y, k);
+        sendToGroup(RELEASE_Y, Y, groupedProcess_id);
         if(hyperSpace - k == 0){
             incrementTimestamp(0);
             sendToGroup(EMPTY, Y, 0);
@@ -376,7 +376,6 @@ int main(int argc, char **argv){
     MPI_Comm_rank(MPI_COMM_WORLD, &id);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
     init();
-    printf("hyper %d\n", hyperSpace);
     if(master == X)
         runningX();
     if(master == Y)
