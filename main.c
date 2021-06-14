@@ -159,7 +159,6 @@ void runningX(){
     memset(queue, 0, countOfX);
     struct Message message;
     state = queueing;
-    int k=0, sendedToY=0;
 
     //początek, proces rozsyła żądanie do Xs aby otrzymać Y
 start:
@@ -171,6 +170,7 @@ start:
     queue[id]=sended_ts;
     state = waitingForX;
     groupedProcess_id = -1;
+    int k=0, sendedToY=0;
     //pętla zarządzająca odbiorem wiadomości
     while(1){
         message = receiveMessage();
@@ -207,7 +207,7 @@ start:
             }
         }else if(message.type == JOINED){
             state = farming;
-            printf("[X - %d] farming, k - %d, Y - %d\n", id, k, message.sender);
+            printf("[X - %d] farming, Y - %d, k - %d\n", id, message.sender, k);
             if(groupedProcess_id > 0)
                 printf("[ERROR X - %d] grouped - %d, want to group - %d", id, groupedProcess_id, message.sender);
             groupedProcess_id = message.sender;
