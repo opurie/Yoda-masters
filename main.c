@@ -252,6 +252,9 @@ start:
     while(1){
         message = receiveMessage();
         incrementTimestamp(message.timestamp);
+        if(receivedACKs == countOfY-1){   
+            printf("[Y - %d] ACKSSSSSSSSS");
+        }
         if(message.type == REQ){
             queue[message.sender - ys] = message.timestamp;
             if(state == readyToFarm || state == farming || state == waitingForX)
@@ -266,7 +269,6 @@ start:
                 state = waitingForX;
                 k = queuePlace(Y, queue, inQue);
                 if(farmingY(k, queue, inQue, xtab)==1){
-                    state = queueing;
                     goto start;
                 }
             }
@@ -276,7 +278,6 @@ start:
             if(receivedACKs == countOfY-1)
                 k = queuePlace(Y, queue, inQue);
             if(farmingY(k, queue, inQue, xtab)==1){
-                state = queueing;
                 goto start;
             }
 
@@ -288,11 +289,11 @@ start:
             if(hyperSpace>0)
                 hyperSpace -= 1;
             if(farmingY(k, queue, inQue, xtab)==1){
-                state = queueing;
                 goto start;
             }
             
         }else if(message.type == EMPTY){
+            
         }else if(message.type == FULL){
             hyperSpace = MAX_ENERGY;
             if(receivedACKs == countOfY-1)
