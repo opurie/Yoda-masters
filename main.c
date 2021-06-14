@@ -247,6 +247,7 @@ start:
     sendToGroup(REQ, Y, 0);
     receivedACKs = 0;
     queue[id-ys]=sended_ts;
+    groupedProcess_id = -1;
     k=0;
     while(1){
         message = receiveMessage();
