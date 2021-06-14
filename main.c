@@ -219,7 +219,7 @@ char farmingY(int k, int* queue, int *inQue, int* xtab){
         if(hyperSpace - k == 0){
             incrementTimestamp(0);
             printf("[Y - %d] =======EMPTY========\n",id);
-            usleep(500);
+            sleep(1);
             sendToGroup(EMPTY, Z, 0);
         }
         return 1;
@@ -351,7 +351,7 @@ secondStart:
                hyperSpace++;
                sendToGroup(RELEASE_Z, Z, 0); 
                if(hyperSpace + k == MAX_ENERGY - 1){
-                   usleep(500);
+                   sleep(1);
                     sendToGroup(FULL, Z, 0);
                     sendToGroup(FULL, Y, 0);
                     memset(inQue, 0, countOfZ);
@@ -374,7 +374,7 @@ secondStart:
                 hyperSpace++;
                 sendToGroup(RELEASE_Z, Z, 0);
                 if(hyperSpace + k == MAX_ENERGY - 1){
-                    usleep(500);
+                    sleep(1);
                     sendToGroup(FULL, Z, 0);
                     sendToGroup(FULL, Y, 0);
                     memset(inQue, 0, countOfZ);
