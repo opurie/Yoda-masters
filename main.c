@@ -194,10 +194,10 @@ int findX(int k, int *xtab){
     return -1;
 }
 void updatextab(int k, int *xtab){
-    /*int j = xtab[k];
+    int j = xtab[k];
     for(int i=0;i<countOfX;i++){
         if(xtab[i] > j) xtab[i]--;
-    }*/
+    }
 }
 char farmingY(int k, int* queue, int *inQue, int* xtab){
     if(state == waitingForX){

@@ -27,7 +27,7 @@
 #define Y_MASTERS 0.35
 #define Z_MASTERS 0.3
 
-#define MAX_ENERGY 5
+#define MAX_ENERGY 20
 
 struct Message{
     //nadawca
