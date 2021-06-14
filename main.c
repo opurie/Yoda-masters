@@ -210,7 +210,7 @@ char farmingY(int k, int* queue, int *inQue, int* xtab){
         }
     }
     if(state == readyToFarm && k <= hyperSpace){
-        printf("[Y - %d] farming, x - %d, hyperspace - %d\n", id, groupedProcess_id, hyperSpace);
+        printf("[Y - %d] farming, x - %d, hyperspace - %d - 1\n", id, groupedProcess_id, hyperSpace);
         state = farming;
         hyperSpace--;
         incrementTimestamp(0);
