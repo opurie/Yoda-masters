@@ -212,7 +212,6 @@ char farmingY(int k, int* queue, int *inQue, int* xtab){
     if(state == readyToFarm && k <= hyperSpace){
         printf("[Y - %d] farming, x - %d, hyperspace - %d\n", id, groupedProcess_id, hyperSpace);
         state = farming;
-        sleep(1);
         hyperSpace--;
         incrementTimestamp(0);
         sendMessage(groupedProcess_id, RELEASE_Y, 0);
@@ -324,8 +323,8 @@ start:
     receivedACKs = 0;
     queue[id - zs]=sended_ts;
     state = waitingForZ;
-    k=0;
 secondStart:
+    k=0;
     //pętla zarządzająca odbiorem wiadomości
     while(1){
         message = receiveMessage();
@@ -347,10 +346,9 @@ secondStart:
                 state = readyToFarm;
             }
             if(k>0 && k + hyperSpace <= MAX_ENERGY){
-            printf("[Z - %d] farming, hyperspace - %d\n", id, hyperSpace);
+                printf("[Z - %d] farming, hyperspace - %d\n", id, hyperSpace);
                state = farming;
                incrementTimestamp(0);
-               sleep(1);
                hyperSpace++;
                sendToGroup(RELEASE_Z, Z, 0); 
                if(hyperSpace + k == MAX_ENERGY - 1){
@@ -373,7 +371,6 @@ secondStart:
                 state = farming;
                 printf("[Z - %d] farming, hyperspace - %d\n", id, hyperSpace);
                 incrementTimestamp(0);
-                sleep(1);
                 hyperSpace++;
                 sendToGroup(RELEASE_Z, Z, 0);
                 if(hyperSpace + k == MAX_ENERGY - 1){
