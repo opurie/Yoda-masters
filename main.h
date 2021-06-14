@@ -29,6 +29,7 @@ typedef enum{queueing, beforeFarming, farming, chilling,
              waitingForX,
              waitingForY, 
              waitingForZ} State;
+             
 //ma zapisany aktualny stan procesu X
 State state;
 //zlicza otrzymane potwierdzenia

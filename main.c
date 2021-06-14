@@ -82,7 +82,7 @@ void sendToGroup(int messageType, masters master, int n){
 //k = {1..countOf(XYZ)}
 int queuePlace(int acks, masters master, int *queue, int *inQue){
     int k = 1;
-    int ys=countOfX, zs=countOfX+countOfY;
+    int ys = countOfX, zs = countOfX+countOfY;
     if(master == X){
         state = waitingForY;
         for(int i = 0; i<countOfX; i++){
@@ -100,7 +100,7 @@ int queuePlace(int acks, masters master, int *queue, int *inQue){
             if(id - ys == i) continue;
             if(queue[i] < sended_ts)
                 k++;
-            else if(queue[i] == sended_ts && i < id-ys )
+            else if(queue[i] == sended_ts && i < id - ys )
                 k++;
             else if(queue[i] >= sended_ts && inQue[i]==1)
                 k++;
@@ -190,13 +190,13 @@ start:
             if(k>0 && k <= countOfY && sendedToY==0){
                 incrementTimestamp(0);
                 sendToGroup(GROUP_ME, Y, k);
-                printf("[X - %d] waitingForY, k - %d\n", id, k);
+                printf("[X - %d] waitingForY, k - %d ----------------------\n", id, k);
                 state = waitingForY;
                 sendedToY=1;
             }
         }else if(message.type == RELEASE_X){
-            inQue[message.sender]=0;
-            if(receivedACKs==countOfX-1)
+            inQue[message.sender] = 0;
+            if(receivedACKs == countOfX - 1)
                 k = queuePlace(receivedACKs, X, queue, inQue);
             if(k>0 && k <= countOfY && sendedToY==0){
                 incrementTimestamp(message.timestamp);
@@ -259,6 +259,7 @@ char farmingY(int k, int* queue, int *inQue, int* xtab){
     }
     return 0;
 }
+
 void runningY(){
     int *queue= malloc(countOfY * sizeof(int));
     int *xtab = malloc(countOfX * sizeof(int));
@@ -348,23 +349,73 @@ start:
     receivedACKs = 0;
     queue[id - zs]=sended_ts;
     state = waitingForZ;
+    k=0;
 secondStart:
     //pętla zarządzająca odbiorem wiadomości
     while(1){
         message = receiveMessage();
+        incrementTimestamp(message.timestamp);
         //Jeśli nie jesteś zakolejkowany inQue=0, jeśli jesteś inQue=1
         if(message.type == REQ){
-
+            queue[message.sender - zs] = message.timestamp;
+            if(state == beforeFarming || state == farming){
+                sendMessage(message.sender, ACK, 1);
+            }else{
+                sendMessage(message.sender, ACK, 0);
+            }
         }else if(message.type == ACK){
-            
+            if(message.timestamp > sended_ts)
+                receivedACKs++;
+            inQue[message.sender - zs] = message.inQue;
+            if(receivedACKs == countOfZ - 1){
+                k = queuePlace(receivedACKs, Z, queue, inQue);
+                state = beforeFarming;
+            }
+            if(k>0 && k + hyperSpace <= MAX_ENERGY){
+               state = farming;
+               incrementTimestamp(0);
+               hyperSpace++;
+               sendToGroup(RELEASE_Z, Z, 0); 
+               if(hyperSpace + k == MAX_ENERGY - 1){
+                    sendToGroup(FULL, Z, 0);
+                    sendToGroup(FULL, Y, 0);
+                    memset(inQue, 0, countOfZ);
+                    memset(queue, 0, countOfZ);
+                    state = chilling;
+                    hyperSpace = MAX_ENERGY;
+                    goto secondStart;
+                }
+               goto start;
+            }
         }else if(message.type == RELEASE_Z){
+            hyperSpace++;
+            inQue[message.sender - zs] = 0;
+            if(receivedACKs == countOfZ - 1)
+                k = queuePlace(receivedACKs, Z, queue, inQue);
+            if(k > 0 && k + hyperSpace <= MAX_ENERGY){
+                state = farming;
+                incrementTimestamp(0);
+                hyperSpace++;
+                sendToGroup(RELEASE_Z, Z, 0);
+                if(hyperSpace + k == MAX_ENERGY - 1){
+                    sendToGroup(FULL, Z, 0);
+                    sendToGroup(FULL, Y, 0);
+                    memset(inQue, 0, countOfZ);
+                    memset(queue, 0, countOfZ);
+                    state = chilling;
+                    hyperSpace = MAX_ENERGY;
+                    goto secondStart;
+                }
+                goto start; 
+            }
 
         }else if(message.type == FULL){
-            incrementTimestamp(message.timestamp);
             state = chilling;
             hyperSpace = MAX_ENERGY;
+            goto secondStart;
         }else if(message.type == EMPTY){
-            incrementTimestamp(message.timestamp);
+            memset(inQue, 0, countOfZ);
+            memset(queue, 0, countOfZ);
             state = queueing;
             hyperSpace = 0;
             goto start;

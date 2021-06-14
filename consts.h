@@ -10,7 +10,6 @@
 #include <time.h>
 #include <string.h>
 
-#define ROOT 0
 
 //Messages
 #define REQ 10
@@ -18,8 +17,8 @@
 #define RELEASE_X 12
 #define RELEASE_Y 13
 #define RELEASE_Z 14
-#define JOINED 15
-#define GROUP_ME 16
+#define GROUP_ME 15
+#define JOINED 16
 #define FULL 17
 #define EMPTY 18
 
@@ -29,8 +28,6 @@
 #define Z_MASTERS 0.3
 
 #define MAX_ENERGY 10
-#define MIN_ENERGY 0
-
 
 struct Message{
     //nadawca
