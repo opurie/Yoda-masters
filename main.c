@@ -315,7 +315,7 @@ void runningZ(){
     goto secondStart;
     //początek, proces rozsyła żądanie do Xs aby otrzymać Y
 start:
-    printf("\t\t\t\t\t\t\t\t[Z - %d] queueing\n", id);
+    printf("\t\t\t\t\t\t[Z - %d] queueing\n", id);
     incrementTimestamp(0);
     sended_ts = timestamp;
     sendToGroup(REQ, Z, 0);
