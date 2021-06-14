@@ -163,6 +163,7 @@ void runningX(){
 
     //początek, proces rozsyła żądanie do Xs aby otrzymać Y
 start:
+    printf("[X - %d] waitingForX\n", id);
     incrementTimestamp(0);
     sended_ts = timestamp;
     sendToGroup(REQ, X, 0);
@@ -184,11 +185,11 @@ start:
                 receivedACKs++;
             inQue[message.sender] = message.inQue;
             if(receivedACKs==countOfX-1){
-                state = waitingForY;
                 k = queuePlace(receivedACKs, X, queue, inQue);}
             if(k>0 && k <= countOfY && !(state == waitingForY || state == farming)){
                 incrementTimestamp(0);
                 sendToGroup(GROUP_ME, Y, k);
+                printf("[X - %d] waitingForY, k - %d\n", id, k);
                 state = waitingForY;
             }
         }else if(message.type == RELEASE_X){
@@ -198,13 +199,14 @@ start:
             if(k>0 && k <= countOfY && !(state == waitingForY || state == farming)){
                 incrementTimestamp(message.timestamp);
                 sendToGroup(GROUP_ME, Y, k);
+                printf("[X - %d] waitingForY, k - %d\n", id, k);
                 state = waitingForY;
             }
         }else if(message.type == JOINED){
             state = farming;
+            printf("[X - %d] farming, k - %d, Y - %d\n", id, k, message.sender);
             groupedProcess_id = message.sender;
         }else if(message.type == RELEASE_Y){
-            state = queueing;
             incrementTimestamp(0);
             sendToGroup(RELEASE_X, X, 0);
             goto start;
@@ -275,13 +277,11 @@ start:
     sendToGroup(REQ, Y, 0);
     receivedACKs = 0;
     queue[id-ys]=sended_ts;
-    printf("[Y - %d] waitingForY\n", id);
-    state = waitingForY;
     k=0;
     while(1){
         message = receiveMessage();
         incrementTimestamp(message.timestamp);
-        if(message.type == REQ){printf("[Y - %d] got req from %d\n", id, message.sender);
+        if(message.type == REQ){
             queue[message.sender - ys] = message.timestamp;
             if(state == beforeFarming || state == farming || state == waitingForX)
                 sendMessage(message.sender, ACK, 1);
