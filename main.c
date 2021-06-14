@@ -210,7 +210,7 @@ char farmingY(int k, int* queue, int *inQue, int* xtab){
         incrementTimestamp(0);
         sendMessage(groupedProcess_id, JOINED, 0);
 
-        printf("\t\t\t\t[Y - %d] farming, x - %d, hyperspace - %d - 1\n", id, groupedProcess_id, hyperSpace);
+        printf("[Y - %d] farming, x - %d, hyperspace - %d - 1\n", id, groupedProcess_id, hyperSpace);
         state = farming;
         hyperSpace--;
         incrementTimestamp(0);
@@ -218,7 +218,7 @@ char farmingY(int k, int* queue, int *inQue, int* xtab){
         sendToGroup(RELEASE_Y, Y, groupedProcess_id);
         if(hyperSpace - k == 0){
             incrementTimestamp(0);
-            printf("\t\t\t\t[Y - %d] =======EMPTY========\n",id);
+            printf("[Y - %d] =======EMPTY========\n",id);
             sendToGroup(EMPTY, Y, 0);
             sendToGroup(EMPTY, Z, 0);
         }
@@ -240,7 +240,7 @@ void runningY(){
     
     int ys = countOfX;
 start:
-    printf("\t\t\t\t[Y - %d] queueing\n", id);
+    printf("[Y - %d] queueing\n", id);
     state = queueing;
     incrementTimestamp(0);
     sended_ts = timestamp;
@@ -315,7 +315,7 @@ void runningZ(){
     goto secondStart;
     //początek, proces rozsyła żądanie do Xs aby otrzymać Y
 start:
-    printf("\t\t\t\t\t\t\t\t\t\t[Z - %d] queueing\n", id);
+    printf("\t\t\t\t\t\t\t\t[Z - %d] queueing\n", id);
     incrementTimestamp(0);
     sended_ts = timestamp;
     sendToGroup(REQ, Z, 0);
@@ -345,7 +345,7 @@ secondStart:
                 state = readyToFarm;
             }
             if(k>0 && k + hyperSpace <= MAX_ENERGY){
-                printf("\t\t\t\t\t\t\t\t\t\t[Z - %d] farming, hyperspace - %d\n", id, hyperSpace);
+                printf("\t\t\t\t\t\t\t\t[Z - %d] farming, hyperspace - %d\n", id, hyperSpace);
                state = farming;
                incrementTimestamp(0);
                hyperSpace++;
@@ -368,7 +368,7 @@ secondStart:
                 k = queuePlace(Z, queue, inQue);
             if(k > 0 && k + hyperSpace <= MAX_ENERGY){
                 state = farming;
-                printf("\t\t\t\t\t\t\t\t\t\t[Z - %d] farming, hyperspace - %d\n", id, hyperSpace);
+                printf("\t\t\t\t\t\t\t\t[Z - %d] farming, hyperspace - %d\n", id, hyperSpace);
                 incrementTimestamp(0);
                 hyperSpace++;
                 sendToGroup(RELEASE_Z, Z, 0);
@@ -385,7 +385,7 @@ secondStart:
             }
 
         }else if(message.type == FULL){
-            printf("\t\t\t\t\t\t\t\t\t\t[Z - %d] chilling\n", id);
+            printf("\t\t\t\t\t\t\t\t[Z - %d] chilling\n", id);
             state = chilling;
             goto secondStart;
         }else if(message.type == EMPTY){
