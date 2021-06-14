@@ -418,6 +418,7 @@ secondStart:
             hyperSpace = MAX_ENERGY;
             goto secondStart;
         }else if(message.type == EMPTY){
+            printf("[Z - %d] EMPTY---------------------------------\n", id);
             memset(inQue, 0, countOfZ);
             memset(queue, 0, countOfZ);
             state = queueing;
