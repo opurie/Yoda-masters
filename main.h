@@ -25,7 +25,7 @@ void sendToGroup(int messageType, masters master, int n);
 struct Message receiveMessage();
 
 //możliwe poprawki ale jest spoko narazie
-typedef enum{queueing, farming,
+typedef enum{queueing, beforeFarming, farming, chilling,
              waitingForX,
              waitingForY, 
              waitingForZ} state;
@@ -39,6 +39,7 @@ void initCustomMessage();
 //zwraca pozycje w kolejce(narazie dla X)
 int queuePlace(int acks, masters master, int *queue, int *inQue);
 int findX(int k, int *Xs);
+bool farmingY(int *k, int* queue, int *inQue, int* xtab);
 void updateInQue(int k, int *Xs);
 //zarządzają procesami
 void runningX();
