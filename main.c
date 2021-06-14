@@ -230,10 +230,6 @@ void updateInQue(int k, int *xtab){
     }
 }
 char farmingY(int k, int* queue, int *inQue, int* xtab){
-    if(state == queueing){
-        printf("[ERROR Y] Y: %d, X: %d\n", id, groupedProcess_id);
-        exit(-1);
-    }
     if(state == waitingForX){
         groupedProcess_id = findX(k, xtab);
         if(groupedProcess_id>=0){
@@ -296,7 +292,7 @@ start:
             if(receivedACKs == countOfY-1){   
                 state = waitingForX;
                 int k = queuePlace(receivedACKs, Y, queue, inQue);
-                if(farmingY(k, queue, inQue, xtab)){
+                if(farmingY(k, queue, inQue, xtab)==1){
                     state = queueing;
                     goto start;
                 }
@@ -305,7 +301,7 @@ start:
         }else if(message.type == GROUP_ME){
             xtab[message.sender] = message.inQue;
             int k = queuePlace(receivedACKs, Y, queue, inQue);
-            if(farmingY(k, queue, inQue, xtab)){
+            if(farmingY(k, queue, inQue, xtab)==1){
                 state = queueing;
                 goto start;
             }
@@ -316,7 +312,7 @@ start:
             int k = queuePlace(receivedACKs, Y, queue, inQue);
             if(hyperSpace>0)
                 hyperSpace -= 1;
-            if(farmingY(k, queue, inQue, xtab)){
+            if(farmingY(k, queue, inQue, xtab)==1){
                 state = queueing;
                 goto start;
             }
