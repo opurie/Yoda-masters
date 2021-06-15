@@ -229,7 +229,7 @@ void runningY(){
     memset(inQue, 0, countOfY);
     memset(xtab,-1,countOfX);
     memset(queue, 0, countOfY);
-    int receivedFULLs=0;
+    int receivedFULLs=0, sendedEMPTY = 0;
 
     struct Message message;
     int k=0, sendedToX=0;
@@ -282,6 +282,10 @@ start:
                 k = queuePlace(Y, queue, inQue);
             if(hyperSpace>0)
                 hyperSpace -= 1;
+            if(hyperSpace==0 && sendedEMPTY == 0){
+                sendedEMPTY=1;
+                sendToGroup(EMPTY,Z,0);
+            }
             if(farmingY(k, queue, inQue, xtab)==1){
                 goto start;
             }
@@ -290,8 +294,11 @@ start:
             incrementTimestamp(0);
             if(groupedProcess_id>=0)
                 sendMessage(groupedProcess_id, RELEASE_Y, 0);
-    printf("[Y - %d] send empty\n", id);
-            sendToGroup(EMPTY,Z,0);
+            printf("[Y - %d] send empty\n", id);
+            if(sendedEMPTY==0){
+                sendedEMPTY=1;
+                sendToGroup(EMPTY,Z,0);
+            }
 
         }else if(message.type == FULL){
             hyperSpace = MAX_ENERGY;
