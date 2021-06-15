@@ -91,8 +91,6 @@ int queuePlace(masters master, int *queue, int *inQue){
                 k++;
             else if(queue[i] == sended_ts && i < id)
                 k++;
-            else if(queue[i] >= sended_ts && inQue[i]==1)
-                k++;
         }
     }
     if(master == Y){
@@ -102,8 +100,6 @@ int queuePlace(masters master, int *queue, int *inQue){
                 k++;
             else if(queue[i] == sended_ts && i < id - ys )
                 k++;
-            else if(queue[i] >= sended_ts && inQue[i]==1)
-                k++;
         }
     }
     if(master == Z){
@@ -112,8 +108,6 @@ int queuePlace(masters master, int *queue, int *inQue){
             if(queue[i] < sended_ts)
                 k++;
             else if(queue[i] == sended_ts && i < id-zs)
-                k++;
-            else if(queue[i] >= sended_ts && inQue[i]==1)
                 k++;
         }
     }
@@ -234,6 +228,7 @@ void runningY(){
     memset(inQue, 0, countOfY);
     memset(xtab,-1,countOfX);
     memset(queue, 0, countOfY);
+    int receivedFULLs=0;
 
     struct Message message;
     int k=0, sendedToX=0;
@@ -248,6 +243,7 @@ start:
     receivedACKs = 0;
     queue[id-ys]=sended_ts;
     groupedProcess_id = -1;
+    receivedFULLs=0;
     k=0;
     while(1){
         message = receiveMessage();
@@ -293,15 +289,16 @@ start:
             }
             
         }else if(message.type == EMPTY){
-            
+            incrementTimestamp(0);
+            if(groupedProcess_id>=0)
+                sendMessage(groupedProcess_id, RELEASE_Y, 0);
+            sendToGroup(EMPTY,Z,0);
+
         }else if(message.type == FULL){
             hyperSpace = MAX_ENERGY;
-            if(receivedACKs == countOfY-1)
-                k = queuePlace(Y, queue, inQue);
-            if(farmingY(k, queue, inQue, xtab)==1){
-                state = queueing;
+            receivedFULLs++;
+            if(receivedFULLs==countOfZ-1)
                 goto start;
-            }
         }
     }
 }
@@ -314,6 +311,7 @@ void runningZ(){
     state = chilling;
     int k=0;
     int zs = countOfY+countOfX;
+    int receivedEMPTYs = 0;
     goto secondStart;
     //początek, proces rozsyła żądanie do Xs aby otrzymać Y
 start:
@@ -324,7 +322,9 @@ start:
     receivedACKs = 0;
     queue[id - zs]=sended_ts;
     state = waitingForZ;
+    
 secondStart:
+receivedEMPTYs = 0;
     k=0;
     //pętla zarządzająca odbiorem wiadomości
     while(1){
@@ -391,11 +391,15 @@ secondStart:
         }else if(message.type == FULL){
             printf("\t\t\t\t\t\t[Z - %d] chilling\n", id);
             state = chilling;
+            incrementTimestamp(0);
+            sendToGroup(FULL, Y,0);
             goto secondStart;
         }else if(message.type == EMPTY){
             state = queueing;
             hyperSpace = 0;
-            goto start;
+            receivedEMPTYs++;
+            if(receivedEMPTYs==countOfY-1)
+                goto start;
         }
     }
 }
