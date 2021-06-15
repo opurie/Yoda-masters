@@ -214,6 +214,7 @@ char farmingY(int k, int* queue, int *inQue, int* xtab){
             incrementTimestamp(0);
             printf("[Y - %d] =======EMPTY========\n",id);
             sleep(1);
+            sendToGroup(EMPTY, Y, 0);
             sendToGroup(EMPTY, Z, 0);
         }
         return 1;
