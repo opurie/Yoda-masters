@@ -289,6 +289,7 @@ start:
             incrementTimestamp(0);
             if(groupedProcess_id>=0)
                 sendMessage(groupedProcess_id, RELEASE_Y, 0);
+    printf("[Y - %d] send empty\n", id);
             sendToGroup(EMPTY,Z,0);
 
         }else if(message.type == FULL){
