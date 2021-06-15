@@ -248,9 +248,6 @@ start:
     while(1){
         message = receiveMessage();
         incrementTimestamp(message.timestamp);
-        if(receivedACKs == countOfY-1){   
-            printf("[Y - %d] ACKSSSSSSSSS - %d\n", id, k);
-        }
         if(message.type == REQ){
             queue[message.sender - ys] = message.timestamp;
             if(state == readyToFarm || state == farming || state == waitingForX)
