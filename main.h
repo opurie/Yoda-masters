@@ -36,8 +36,8 @@ int queuePlace(masters master, int *queue, int *inQue);
 int findX(int k, int *xtab);
 char farmingY(int k, int* queue, int *inQue, int* xtab);
 void updateXtab(int i, int* xtab);
-void goInHyperSpaceY();
-void goInHyperSpaceZ();
+void goInHyperSpaceY(int k);
+void goInHyperSpaceZ(int k);
 //zarządzają procesami
 void runningX();
 void runningY();

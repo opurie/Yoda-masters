@@ -204,7 +204,7 @@ void updateXtab(int i, int* xtab){
     }
     xtab[i]=0;
 }
-void goInHyperSpaceY(){
+void goInHyperSpaceY(int k){
     changeState(farming);
     hyperSpace--;
     sleep(TIME_IN);
@@ -219,7 +219,7 @@ void goInHyperSpaceY(){
     }
     changeState(queueing);
 }
-void goInHyperSpaceZ(){
+void goInHyperSpaceZ(int k){
     changeState(farming);
     hyperSpace++;
     sleep(TIME_IN);
@@ -280,7 +280,7 @@ start:
                     changeState(readyToFarm);
                 }
                 if(state == readyToFarm && k <= hyperSpace){
-                    goInHyperSpaceY();
+                    goInHyperSpaceY(k);
                     goto start;
                 }
             }
@@ -300,7 +300,7 @@ start:
                 }
             }
             if(state == readyToFarm && k <= hyperSpace){
-                goInHyperSpaceY();
+                goInHyperSpaceY(k);
                 goto start;
             }
             if(hyperSpace == 0 && sendEmptys == 0){
@@ -323,7 +323,7 @@ start:
                 }
             }
             if(state == readyToFarm && k <= hyperSpace){
-                goInHyperSpaceY();
+                goInHyperSpaceY(k);
                 goto start;
             }
             break;
@@ -333,7 +333,7 @@ start:
                 sendEmptys = 0;
                 hyperSpace = MAX_ENERGY;
                 if(state == readyToFarm && k <= hyperSpace){
-                    goInHyperSpaceY();
+                    goInHyperSpaceY(k);
                     goto start;
                 }
             }
@@ -389,7 +389,7 @@ gotoLoop:
                 changeState(readyToFarm);
                 k = queuePlace(Z, queue, inQue);
                 if(k > 0 && k + hyperSpace <= MAX_ENERGY){
-                    goInHyperSpaceZ();
+                    goInHyperSpaceZ(k);
                     goto start;
                 }
             }
@@ -399,7 +399,7 @@ gotoLoop:
             inQue[message.sender - zs] = 0;
             k = queuePlace(Z, queue,inQue);
             if(k > 0 && k + hyperSpace <= MAX_ENERGY){
-                    goInHyperSpaceZ();
+                    goInHyperSpaceZ(k);
                     goto start;
             }
             if(hyperSpace == MAX_ENERGY && sendFulls == 0){
