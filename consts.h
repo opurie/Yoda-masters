@@ -29,6 +29,8 @@
 
 #define MAX_ENERGY 20
 
+#define TIME_IN 1
+
 struct Message{
     //nadawca
     int sender;
@@ -36,8 +38,6 @@ struct Message{
     int timestamp;
     //typ wiadomości, linijki 16-24
     int type;
-    //zwykle 0, ale jeśli już czeka po odebraniu wszystkich AKCów to odsyła 1, 
-    //aby proces który dopiero wyszedł z hp nie wszedł przed niego w kolejce
     int inQue;
 };
 //każdy proces ma przydzieloną jedną wartość

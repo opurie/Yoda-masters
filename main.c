@@ -84,227 +84,270 @@ int queuePlace(masters master, int *queue, int *inQue){
     int k = 1;
     int ys = countOfX, zs = countOfX+countOfY;
     if(master == X){
-        state = waitingForY;
-        for(int i = 0; i<countOfX; i++){
+        for(int i = 0; i < countOfX; i++){
             if(i == id) continue;
-            if(queue[i] < sended_ts)
+            if(queue[i] < queue[id] && inQue[i] == 1)
                 k++;
-            else if(queue[i] == sended_ts && i < id)
+            else if(queue[i] == queue[id] && i < id && inQue[i] == 1)
                 k++;
         }
     }
-    if(master == Y){
-        for(int i = 0; i<countOfY; i++){
+    else if(master == Y){
+        for(int i = 0; i < countOfY; i++){
             if(id - ys == i) continue;
-            if(queue[i] < sended_ts)
+            if(queue[i] < queue[id - ys] && inQue[i] == 1)
                 k++;
-            else if(queue[i] == sended_ts && i < id - ys )
+            else if(queue[i] == queue[id - ys] && i < id - ys && inQue[i] == 1)
                 k++;
         }
     }
-    if(master == Z){
+    else if(master == Z){
         for(int i = 0; i<countOfZ;i++){
             if(id - zs == i) continue;
-            if(queue[i] < sended_ts)
+            if(queue[i] < queue[id - zs] && inQue[i]==1)
                 k++;
-            else if(queue[i] == sended_ts && i < id-zs)
+            else if(queue[i] == queue[id - zs] && i < id-zs && inQue[i]==1)
                 k++;
         }
     }
     return k;
 }
+void changeState(State s){
+    state = s;
+}
 void runningX(){
     int *queue= malloc(countOfX * sizeof(int));
     char *inQue= malloc(countOfX * sizeof(char)); 
-    memset(inQue, 0, countOfX);
+    memset(inQue, 1, countOfX);
     memset(queue, 0, countOfX);
     struct Message message;
-    state = queueing;
-
-    //początek, proces rozsyła żądanie do Xs aby otrzymać Y
+    int receivedACKs, k, minimum;
+    if(countOfY > countOfX)
+        minimum = countOfX;
+    else
+        minimum = countOfY; 
 start:
     incrementTimestamp(0);
-    sended_ts = timestamp;
     sendToGroup(REQ, X, 0);
+    queue[id] = timestamp;
     receivedACKs = 0;
-    queue[id]=sended_ts;
-    state = queueing;
-    groupedProcess_id = -1;
-    int k=0, sendedToY=0;
-    //pętla zarządzająca odbiorem wiadomości
+    k = 0;
+    changeState(queueing);
     while(1){
         message = receiveMessage();
         incrementTimestamp(message.timestamp);
-        if(message.type == REQ){
+        switch (message.type)
+        {
+        case REQ:
             queue[message.sender] = message.timestamp;
-            if(state == waitingForY || state == farming)
-                sendMessage(message.sender, ACK, 1);
-            else
-                sendMessage(message.sender, ACK, 0);
-        }else if(message.type == ACK){
-            if(message.timestamp > sended_ts)
-                receivedACKs++;
-            inQue[message.sender] = message.inQue;
-            if(receivedACKs==countOfX-1){
-                k = queuePlace(X, queue, inQue);}
-            if(k>0 && k <= countOfY && sendedToY==0){
-                incrementTimestamp(0);
-                sendToGroup(GROUP_ME, Y, k);
-                state = waitingForY;
-                sendedToY=1;
-            }
-        }else if(message.type == RELEASE_X){
-            inQue[message.sender] = 0;
-            if(receivedACKs == countOfX - 1)
-                k = queuePlace(X, queue, inQue);
-            if(k>0 && k <= countOfY && sendedToY==0){
-                incrementTimestamp(message.timestamp);
-                sendToGroup(GROUP_ME, Y, k);
-                state = waitingForY;
-                sendedToY=1;
-            }
-        }else if(message.type == JOINED){
-            state = farming;
-            if(groupedProcess_id > 0)
-                printf("[ERROR X - %d] grouped - %d, want to group - %d\n", id, groupedProcess_id, message.sender);
-            groupedProcess_id = message.sender;
-        }else if(message.type == RELEASE_Y){
+            inQue[message.sender] = 1;
             incrementTimestamp(0);
-            sendToGroup(RELEASE_X, X, 0);
-            goto start;
+            sendMessage(message.sender, ACK, 0);
+            break;
+        case ACK:
+            receivedACKs++;
+            if(receivedACKs == countOfX - 1 && state == queueing){
+                changeState(readyToFarm);
+                k = queuePlace(X, queue, inQue);
+                if(k > 0 && k <= minimum){
+                    incrementTimestamp(0);
+                    sendToGroup(GROUP_ME, Y, k);
+                    changeState(waitingForY);
+                }
+            }
+            break;
+        case RELEASE_X:
+            inQue[message.sender] = 0;
+            if(state == readyToFarm){
+                k = queuePlace(X, queue, inQue);
+                if(k > 0 && k <= minimum){
+                    incrementTimestamp(0);
+                    sendToGroup(GROUP_ME, Y, k);
+                    changeState(waitingForY);
+                }
+            }
+            break;
+        case JOINED:
+            if(state == waitingForY){
+                changeState(farming);
+                groupedProcess_id = message.sender;
+            }else{
+                printf("[ERROR X - %d] JOINED\n", id);
+            }
+            break;
+        case RELEASE_Y:
+            if(state == farming){
+                changeState(queueing);
+                incrementTimestamp(0);
+                sendToGroup(RELEASE_X, X, 0);
+                goto start;
+            }
+            else{
+                printf("[ERROR X - %d] RELEASE_Y\n", id);
+            }
+            break;
+        default:
+            break;
         }
     }
-
 }
 int findX(int k, int *xtab){
-    for(int i=0;i<countOfX;i++){
-        if(k == xtab[i])
+    for(int i = 0; i < countOfX; i++){
+        if(xtab[i]==k)
             return i;
     }
     return -1;
 }
-void updatextab(int k, int *xtab){
-    int j = xtab[k];
-    for(int i=0;i<countOfX;i++){
-        if(xtab[i] > j) xtab[i]--;
+void updateXtab(int i, int* xtab){
+    for(int j = 0; j < countOfX; j++){
+        if(xtab[j] > xtab[i]) xtab[j]--;
     }
+    xtab[i]=0;
 }
-char farmingY(int k, int* queue, int *inQue, int* xtab){
-    /*if(state == waitingForX){
-        groupedProcess_id = findX(k, xtab);
-        if(groupedProcess_id>=0){
-            incrementTimestamp(0);
-            sendMessage(groupedProcess_id, JOINED, 0);
-            printf("[Y - %d] readyToFarm, x - %d, k - %d\n", id, groupedProcess_id, k);
-            state = readyToFarm;
-        }
-    }*/
-    groupedProcess_id = findX(k, xtab);
-    if(state == waitingForX && k <= hyperSpace && groupedProcess_id != -1){
+void goInHyperSpaceY(){
+    changeState(farming);
+    hyperSpace--;
+    sleep(TIME_IN);
+    incrementTimestamp(0);
+    sendMessage(groupedProcess_id, RELEASE_X, 0);
+    sendToGroup(RELEASE_Y, Y, groupedProcess_id);
+    if(k == hyperSpace - 1){
         incrementTimestamp(0);
-        sendMessage(groupedProcess_id, JOINED, 0);
-
-        printf("[Y - %d] farming, x - %d, hyperspace - %d\n", id, groupedProcess_id, hyperSpace);
-        state = farming;
-        hyperSpace--;
-        incrementTimestamp(0);
-        sendMessage(groupedProcess_id, RELEASE_Y, 0);
-        sendToGroup(RELEASE_Y, Y, groupedProcess_id);
-        if(hyperSpace - k == 0){
-            incrementTimestamp(0);
-            printf("[Y - %d] =======EMPTY========\n",id);
-            sleep(1);
-            sendToGroup(EMPTY, Y, 0);
-            sendToGroup(EMPTY, Z, 0);
-        }
-        return 1;
+        sendToGroup(EMPTY, Y, 0);
+        sendToGroup(EMPTY, Z, 0);
+        sendEmptys = 1;
     }
-    return 0;
+    changeState(queueing);
 }
-
+void goInHyperSpaceZ(){
+    changeState(farming);
+    hyperSpace++;
+    sleep(TIME_IN);
+    incrementTimestamp(0);
+    sendToGroup(RELEASE_Z, Z, 0);
+    if(k + hyperSpace == MAX_ENERGY - 1){
+        incrementTimestamp(0);
+        sendToGroup(FULL, Z, 0);
+        sendToGroup(FULL, Y, 0);
+        sendFulls = 1;
+    }
+    changeState(queueing);
+}
 void runningY(){
     int *queue= malloc(countOfY * sizeof(int));
     int *xtab = malloc(countOfX * sizeof(int));
     char *inQue= malloc(countOfY * sizeof(char)); 
-    memset(inQue, 0, countOfY);
-    memset(xtab,-1,countOfX);
+    memset(inQue, 1, countOfY);
     memset(queue, 0, countOfY);
-    int receivedFULLs=0, sendedEMPTY = 0;
-
+    memset(xtab,-1,countOfX);
     struct Message message;
-    int k=0, sendedToX=0;
-    
+    int receivedACKs, receivedFULLs, k, minimum;
     int ys = countOfX;
+    if(countOfY > countOfX)
+        minimum = countOfX;
+    else
+        minimum = countOfY;
+
 start:
-    printf("[Y - %d] queueing\n", id);
-    state = queueing;
     incrementTimestamp(0);
-    sended_ts = timestamp;
     sendToGroup(REQ, Y, 0);
+    queue[id - ys] = timestamp;
     receivedACKs = 0;
-    queue[id-ys]=sended_ts;
-    groupedProcess_id = -1;
-    receivedFULLs=0;
-    k=0;
+    receivedFULLs = 0;
+    k = 0;
+    sendEmptys = 0;
+    changeState(queueing);
     while(1){
         message = receiveMessage();
         incrementTimestamp(message.timestamp);
-        if(message.type == REQ){
+        switch (message.type)
+        {
+        case REQ:
             queue[message.sender - ys] = message.timestamp;
-            if(state == readyToFarm || state == farming || state == waitingForX)
-                sendMessage(message.sender, ACK, 1);
-            else
-                sendMessage(message.sender, ACK, 0);
-        }else if(message.type == ACK){
-            if(message.timestamp > sended_ts)
-                receivedACKs++;
-            inQue[message.sender - ys] = message.inQue;
-            if(receivedACKs == countOfY-1){   
-                state = waitingForX;
+            inQue[message.sender - ys] = 1;
+            incrementTimestamp(0);
+            sendMessage(message.sender, ACK, 0);
+            break;
+        case ACK:
+            receivedACKs++;
+            if(receivedACKs == countOfY - 1 && state == queueing){
+                changeState(waitingForX);
                 k = queuePlace(Y, queue, inQue);
-                if(farmingY(k, queue, inQue, xtab)==1){
+                groupedProcess_id = findX(k, xtab);
+                if(k>0 && k <= minimum && groupedProcess_id >= 0){
+                    incrementTimestamp(0);
+                    sendMessage(groupedProcess_id, JOINED, 0);
+                    changeState(readyToFarm);
+                }
+                if(state == readyToFarm && k <= hyperSpace){
+                    goInHyperSpaceY();
                     goto start;
                 }
             }
-            
-        }else if(message.type == GROUP_ME){
+            break;
+        case RELEASE_Y:
+            inQue[message.sender - ys] = 0;
+            updateXtab(message.inQue, xtab);
+            hyperSpace--;
+            k = queuePlace(Y, queue, inQue);
+            if(state == waitingForX){
+                if(groupedProcess_id == -1)
+                    groupedProcess_id = findX(k, xtab);
+                if(k>0 && k <= minimum && groupedProcess_id >= 0){
+                    incrementTimestamp(0);
+                    sendMessage(groupedProcess_id, JOINED, 0);
+                    changeState(readyToFarm);
+                }
+            }
+            if(state == readyToFarm && k <= hyperSpace){
+                goInHyperSpaceY();
+                goto start;
+            }
+            if(hyperSpace == 0 && sendEmptys == 0){
+                incrementTimestamp(0);
+                sendToGroup(EMPTY, Z, 0);
+                sendEmptys = 1;
+            }
+            break;
+        case GROUP_ME:
             xtab[message.sender] = message.inQue;
-            if(receivedACKs == countOfY-1)
-                k = queuePlace(Y, queue, inQue);
-            if(farmingY(k, queue, inQue, xtab)==1){
+            hyperSpace--;
+            k = queuePlace(Y, queue, inQue);
+            if(state == waitingForX){
+                if(groupedProcess_id == -1)
+                    groupedProcess_id = findX(k, xtab);
+                if(k>0 && k <= minimum && groupedProcess_id >= 0){
+                    incrementTimestamp(0);
+                    sendMessage(groupedProcess_id, JOINED, 0);
+                    changeState(readyToFarm);
+                }
+            }
+            if(state == readyToFarm && k <= hyperSpace){
+                goInHyperSpaceY();
                 goto start;
             }
-
-        }else if(message.type == RELEASE_Y){
-            inQue[message.sender-ys]=0;
-            updatextab(message.inQue, xtab);
-            if(receivedACKs == countOfY-1)
-                k = queuePlace(Y, queue, inQue);
-            if(hyperSpace>0)
-                hyperSpace -= 1;
-            if(hyperSpace==0 && sendedEMPTY == 0){
-                sendedEMPTY=1;
-                sendToGroup(EMPTY,Z,0);
-            }
-            if(farmingY(k, queue, inQue, xtab)==1){
-                goto start;
-            }
-            
-        }else if(message.type == EMPTY){
-            incrementTimestamp(0);
-            if(groupedProcess_id>=0)
-                sendMessage(groupedProcess_id, RELEASE_Y, 0);
-            printf("[Y - %d] send empty\n", id);
-            if(sendedEMPTY==0){
-                sendedEMPTY=1;
-                sendToGroup(EMPTY,Z,0);
-            }
-
-        }else if(message.type == FULL){
-            hyperSpace = MAX_ENERGY;
+            break;
+        case FULL:
             receivedFULLs++;
-            if(receivedFULLs==countOfZ-1)
-                goto start;
+            if(receivedFULLs == countOfZ){
+                sendEmptys = 0;
+                hyperSpace = MAX_ENERGY;
+                if(state == readyToFarm && k <= hyperSpace){
+                    goInHyperSpaceY();
+                    goto start;
+                }
+            }
+            break;
+        case EMPTY:
+            if(hyperSpace == 0 && sendEmptys == 0){
+                incrementTimestamp(0);
+                sendToGroup(EMPTY, Z, 0);
+                sendEmptys = 1;
+            }
+            break;
+        
+        default:
+            break;
         }
     }
 }
@@ -315,99 +358,76 @@ void runningZ(){
     memset(queue, 0, countOfZ);
     struct Message message;
     state = chilling;
-    int k=0;
+    int receivedACKs, k;
     int zs = countOfY+countOfX;
     int receivedEMPTYs = 0;
-    goto secondStart;
-    //początek, proces rozsyła żądanie do Xs aby otrzymać Y
+
+    goto gotoLoop;
 start:
-    printf("\t\t\t\t\t\t[Z - %d] queueing\n", id);
     incrementTimestamp(0);
-    sended_ts = timestamp;
     sendToGroup(REQ, Z, 0);
+    queue[id - zs] = timestamp;
     receivedACKs = 0;
-    queue[id - zs]=sended_ts;
-    state = waitingForZ;
-    
-secondStart:
-receivedEMPTYs = 0;
-    k=0;
-    //pętla zarządzająca odbiorem wiadomości
-    while(1){
+    k = 0;
+    changeState(queueing);
+gotoLoop:
+    while (1)
+    {
         message = receiveMessage();
         incrementTimestamp(message.timestamp);
-        //Jeśli nie jesteś zakolejkowany inQue=0, jeśli jesteś inQue=1
-        if(message.type == REQ){
+        switch (message.type)
+        {
+        case REQ:
             queue[message.sender - zs] = message.timestamp;
-            if(state == readyToFarm || state == farming){
-                sendMessage(message.sender, ACK, 1);
-            }else{
-                sendMessage(message.sender, ACK, 0);
-            }
-        }else if(message.type == ACK){
-            if(message.timestamp > sended_ts)
-                receivedACKs++;
-            inQue[message.sender - zs] = message.inQue;
-            if(receivedACKs == countOfZ - 1){
+            inQue[message.sender - zs] = 1;
+            incrementTimestamp(0);
+            sendMessage(message.sender, ACK, 0);
+            break;
+        case ACK:
+            receivedACKs++;
+            if(receivedACKs == countOfZ - 1 && state == queueing){
+                changeState(readyToFarm);
                 k = queuePlace(Z, queue, inQue);
-                state = readyToFarm;
-            }
-            if(k>0 && k + hyperSpace <= MAX_ENERGY){
-                printf("\t\t\t\t\t\t[Z - %d] farming, hyperspace - %d\n", id, hyperSpace);
-               state = farming;
-               incrementTimestamp(0);
-               hyperSpace++;
-               sendToGroup(RELEASE_Z, Z, 0); 
-               if(hyperSpace + k == MAX_ENERGY - 1){
-                   sleep(1);
-                    sendToGroup(FULL, Z, 0);
-                    sendToGroup(FULL, Y, 0);
-                    memset(inQue, 0, countOfZ);
-                    memset(queue, 0, countOfZ);
-                    state = chilling;
-                    hyperSpace = MAX_ENERGY;
-                    goto secondStart;
+                if(k > 0 && k + hyperSpace <= MAX_ENERGY){
+                    goInHyperSpaceZ();
+                    goto start;
                 }
-               goto start;
             }
-        }else if(message.type == RELEASE_Z){
+            break;
+        case RELEASE_Z:
             hyperSpace++;
             inQue[message.sender - zs] = 0;
-            if(receivedACKs == countOfZ - 1)
-                k = queuePlace(Z, queue, inQue);
+            k = queuePlace(Z, queue,inQue);
             if(k > 0 && k + hyperSpace <= MAX_ENERGY){
-                state = farming;
-                printf("\t\t\t\t\t\t[Z - %d] farming, hyperspace - %d\n", id, hyperSpace);
-                incrementTimestamp(0);
-                hyperSpace++;
-                sendToGroup(RELEASE_Z, Z, 0);
-                if(hyperSpace + k == MAX_ENERGY - 1){
-                    sleep(1);
-                    sendToGroup(FULL, Z, 0);
-                    sendToGroup(FULL, Y, 0);
-                    memset(inQue, 0, countOfZ);
-                    memset(queue, 0, countOfZ);
-                    state = chilling;
-                    hyperSpace = MAX_ENERGY;
-                    goto secondStart;
-                }
-                goto start; 
+                    goInHyperSpaceZ();
+                    goto start;
             }
-
-        }else if(message.type == FULL){
-            printf("\t\t\t\t\t\t[Z - %d] chilling\n", id);
-            state = chilling;
-            incrementTimestamp(0);
-            sendToGroup(FULL, Y,0);
-            goto secondStart;
-        }else if(message.type == EMPTY){
-            state = queueing;
-            hyperSpace = 0;
+            if(hyperSpace == MAX_ENERGY && sendFulls == 0){
+                incrementTimestamp(0);
+                sendToGroup(FULL, Y, 0);
+            }
+            break;
+        case EMPTY:
             receivedEMPTYs++;
-            if(receivedEMPTYs==countOfY-1)
+            if(receivedEMPTYs == countOfY){
+                sendFulls = 0;
+                hyperSpace = 0;
                 goto start;
+            }
+            break;
+        case FULL:
+            if(hyperSpace == MAX_ENERGY && sendFulls == 0){
+                incrementTimestamp(0);
+                sendToGroup(FULL, Y, 0);
+                sendFulls = 1;
+            }
+            break;
+        
+        default:
+            break;
         }
     }
+    
 }
 int main(int argc, char **argv){
     MPI_Init(&argc, &argv);
