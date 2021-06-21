@@ -127,7 +127,6 @@ void runningX(){
     else
         minimum = countOfY; 
 start:
-    incrementTimestamp(0);
     sendToGroup(REQ, X, 0);
     queue[id] = timestamp;
     receivedACKs = 0;
@@ -141,7 +140,6 @@ start:
         case REQ:
             queue[message.sender] = message.timestamp;
             inQue[message.sender] = 1;
-            incrementTimestamp(0);
             sendMessage(message.sender, ACK, 0);
             break;
         case ACK:
@@ -150,7 +148,6 @@ start:
                 changeState(readyToFarm);
                 k = queuePlace(X, queue, inQue);
                 if(k > 0 && k <= minimum){
-                    incrementTimestamp(0);
                     sendToGroup(GROUP_ME, Y, k);
                     changeState(waitingForY);
                 }
@@ -161,7 +158,6 @@ start:
             if(state == readyToFarm){
                 k = queuePlace(X, queue, inQue);
                 if(k > 0 && k <= minimum){
-                    incrementTimestamp(0);
                     sendToGroup(GROUP_ME, Y, k);
                     changeState(waitingForY);
                 }
@@ -178,7 +174,6 @@ start:
         case RELEASE_Y:
             if(state == farming){
                 changeState(queueing);
-                incrementTimestamp(0);
                 sendToGroup(RELEASE_X, X, 0);
                 goto start;
             }
@@ -208,11 +203,9 @@ void goInHyperSpaceY(int k){
     changeState(farming);
     hyperSpace--;
     sleep(TIME_IN);
-    incrementTimestamp(0);
     sendMessage(groupedProcess_id, RELEASE_X, 0);
     sendToGroup(RELEASE_Y, Y, groupedProcess_id);
     if(k == hyperSpace - 1){
-        incrementTimestamp(0);
         sendToGroup(EMPTY, Y, 0);
         sendToGroup(EMPTY, Z, 0);
         sendEmptys = 1;
@@ -223,10 +216,8 @@ void goInHyperSpaceZ(int k){
     changeState(farming);
     hyperSpace++;
     sleep(TIME_IN);
-    incrementTimestamp(0);
     sendToGroup(RELEASE_Z, Z, 0);
     if(k + hyperSpace == MAX_ENERGY - 1){
-        incrementTimestamp(0);
         sendToGroup(FULL, Z, 0);
         sendToGroup(FULL, Y, 0);
         sendFulls = 1;
@@ -249,7 +240,6 @@ void runningY(){
         minimum = countOfY;
 
 start:
-    incrementTimestamp(0);
     sendToGroup(REQ, Y, 0);
     queue[id - ys] = timestamp;
     receivedACKs = 0;
@@ -265,7 +255,6 @@ start:
         case REQ:
             queue[message.sender - ys] = message.timestamp;
             inQue[message.sender - ys] = 1;
-            incrementTimestamp(0);
             sendMessage(message.sender, ACK, 0);
             break;
         case ACK:
@@ -275,7 +264,6 @@ start:
                 k = queuePlace(Y, queue, inQue);
                 groupedProcess_id = findX(k, xtab);
                 if(k>0 && k <= minimum && groupedProcess_id >= 0){
-                    incrementTimestamp(0);
                     sendMessage(groupedProcess_id, JOINED, 0);
                     changeState(readyToFarm);
                 }
@@ -294,7 +282,6 @@ start:
                 if(groupedProcess_id == -1)
                     groupedProcess_id = findX(k, xtab);
                 if(k>0 && k <= minimum && groupedProcess_id >= 0){
-                    incrementTimestamp(0);
                     sendMessage(groupedProcess_id, JOINED, 0);
                     changeState(readyToFarm);
                 }
@@ -304,7 +291,6 @@ start:
                 goto start;
             }
             if(hyperSpace == 0 && sendEmptys == 0){
-                incrementTimestamp(0);
                 sendToGroup(EMPTY, Z, 0);
                 sendEmptys = 1;
             }
@@ -317,7 +303,6 @@ start:
                 if(groupedProcess_id == -1)
                     groupedProcess_id = findX(k, xtab);
                 if(k>0 && k <= minimum && groupedProcess_id >= 0){
-                    incrementTimestamp(0);
                     sendMessage(groupedProcess_id, JOINED, 0);
                     changeState(readyToFarm);
                 }
@@ -340,7 +325,6 @@ start:
             break;
         case EMPTY:
             if(hyperSpace == 0 && sendEmptys == 0){
-                incrementTimestamp(0);
                 sendToGroup(EMPTY, Z, 0);
                 sendEmptys = 1;
             }
@@ -364,7 +348,6 @@ void runningZ(){
 
     goto gotoLoop;
 start:
-    incrementTimestamp(0);
     sendToGroup(REQ, Z, 0);
     queue[id - zs] = timestamp;
     receivedACKs = 0;
@@ -380,7 +363,6 @@ gotoLoop:
         case REQ:
             queue[message.sender - zs] = message.timestamp;
             inQue[message.sender - zs] = 1;
-            incrementTimestamp(0);
             sendMessage(message.sender, ACK, 0);
             break;
         case ACK:
@@ -403,7 +385,6 @@ gotoLoop:
                     goto start;
             }
             if(hyperSpace == MAX_ENERGY && sendFulls == 0){
-                incrementTimestamp(0);
                 sendToGroup(FULL, Y, 0);
             }
             break;
@@ -417,7 +398,6 @@ gotoLoop:
             break;
         case FULL:
             if(hyperSpace == MAX_ENERGY && sendFulls == 0){
-                incrementTimestamp(0);
                 sendToGroup(FULL, Y, 0);
                 sendFulls = 1;
             }
