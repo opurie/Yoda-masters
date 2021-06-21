@@ -14,14 +14,14 @@ pthread_mutex_t tsMutex;// }
 int timestamp=0;//         }
 pthread_mutex_t hsMutex;//     }
 int hyperSpace;
+int sended_ts;
 int groupedProcess_id;//for X and Y
-int sendEmptys, sendFulls;
+
 //Initialize numbers of masters, set hyperspace full and assign master type to process
 void init();
 void incrementTimestamp(int income);
 void sendMessage(int receiver, int type, int in);
 void sendToGroup(int messageType, masters master, int n);
-
 struct Message receiveMessage();
 
 typedef enum{queueing, readyToFarm, farming, chilling,
@@ -29,15 +29,18 @@ typedef enum{queueing, readyToFarm, farming, chilling,
              waitingForY, 
              waitingForZ} State;
 
+//ma zapisany aktualny stan procesu X
 State state;
-void changeState(State s);
+//zlicza otrzymane potwierdzenia
+int receivedACKs = 0;
+//inicjacja customowych wiadomości
 void initCustomMessage();
+//void *listeningX();
+//zwraca pozycje w kolejce(narazie dla X)
 int queuePlace(masters master, int *queue, int *inQue);
-int findX(int k, int *xtab);
+int findX(int k, int *Xs);
 char farmingY(int k, int* queue, int *inQue, int* xtab);
-void updateXtab(int i, int* xtab);
-void goInHyperSpaceY(int k);
-void goInHyperSpaceZ(int k);
+void updateInQue(int k, int *Xs);
 //zarządzają procesami
 void runningX();
 void runningY();
