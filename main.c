@@ -93,7 +93,7 @@ int queuePlace(masters master, int *queue, int *inQue){
                 k++;
             else if(queue[i] == queue[id] && i < id && inQue[i]==1)
                 k++;
-            else k--;
+            else if(queue[i] > queue[id] && inQue[i]==1)k--;
         }
     }
     if(master == Y){
