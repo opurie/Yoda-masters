@@ -282,10 +282,10 @@ start:
             xtab[message.sender] = message.inQue;
             if(state == waitingForX)
                 k = queuePlace(Y, queue, inQue);
-            int res = farmingY(k, queue, inQue, xtab); 
-            if(res == 1){
+            char resY = farmingY(k, queue, inQue, xtab); 
+            if(resY == 1){
                 goto start;
-            }else if(res == 2){
+            }else if(resY == 2){
                 sendedEMPTY = 1;
                 goto start;
             }
@@ -300,10 +300,10 @@ start:
                 sendedEMPTY=1;
                 sendToGroup(EMPTY, Z, 0);
             }
-            int res = farmingY(k, queue, inQue, xtab); 
-            if(res == 1){
+            char resY = farmingY(k, queue, inQue, xtab); 
+            if(resY == 1){
                 goto start;
-            }else if(res == 2){
+            }else if(resY == 2){
                 sendedEMPTY = 1;
                 goto start;
             }
@@ -324,10 +324,10 @@ start:
                 hyperSpace = MAX_ENERGY;
                 sendedEMPTY = 0, receivedFULLs = 0;
                 
-                int res = farmingY(k, queue, inQue, xtab); 
-                if(res == 1){
+                char resY = farmingY(k, queue, inQue, xtab); 
+                if(resY == 1){
                     goto start;
-                }else if(res == 2){
+                }else if(resY == 2){
                     sendedEMPTY = 1;
                     goto start;
                 }
