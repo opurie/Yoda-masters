@@ -82,7 +82,7 @@ void sendToGroup(int messageType, masters master, int n){
         }
     }
 }
-//k = {1..countOf(XYZ)}
+
 int queuePlace(masters master, int *queue, int *inQue){
     int k = 1;
     int ys = countOfX, zs = countOfX+countOfY;
@@ -93,6 +93,10 @@ int queuePlace(masters master, int *queue, int *inQue){
                 k++;
             else if(queue[i] == queue[id] && i < id && inQue[i]==1)
                 k++;
+            else if(queue[i] > queue[id]&& inQue[i]==1)
+                k--;
+            else if(queue[i] == queue[id] && i > id && inQue[i]==1)
+                k--;
         }
     }
     if(master == Y){
@@ -113,7 +117,7 @@ int queuePlace(masters master, int *queue, int *inQue){
                 k++;
         }
     }
-    return k + offset;
+    return k;
 }
 /*
 queueing - kolejkowanie się, czekanie na wszystkie ACKi
@@ -129,7 +133,6 @@ void runningX(){
     struct Message message;
     int k; 
     int minimum = countOfX;
-    int offsethelper=0;
     if(countOfX > countOfY) minimum = countOfY;
     //początek, proces rozsyła żądanie do Xs aby otrzymać Y
 start:
@@ -139,7 +142,7 @@ start:
     queue[id]=timestamp;
     groupedProcess_id = -1;
     int sendedToY=0, receivedACKs = 0;
-    k=0; offsethelper=0;
+    k=0;
     //pętla zarządzająca odbiorem wiadomości
     while(1){
         message = receiveMessage();
@@ -147,9 +150,9 @@ start:
         switch (message.type)
         {
         case REQ:
+            countReqs++;
             queue[message.sender] = message.timestamp;
             inQue[message.sender] = 1;
-            offsethelper++;
             sendMessage(message.sender, ACK, 0);
             break;
         case ACK:
@@ -160,8 +163,8 @@ start:
                 k = queuePlace(master, queue, inQue);
                 changeState(waitingForY);    
                 incrementTimestamp(0);
-                printf("[X - %d] readyToFarm, kolejka - %d\n", id, k);
-                sendToGroup(GROUP_ME, Y, k);
+                printf("[X - %d] readyToFarm, kolejka - %d\n", id, k + countReqs);
+                sendToGroup(GROUP_ME, Y, k+ countReqs);
                 changeState(readyToFarm);
             }
             break;
@@ -181,7 +184,6 @@ start:
             incrementTimestamp(0);
             printf("[X - %d] RELEASED\n", id);
             sendToGroup(RELEASE_X, X, 0);
-            offset += offsethelper; offsethelper = 0;
             goto start;
             break;
         default:
@@ -208,7 +210,7 @@ int farmingY(int k, int* queue, int *inQue, int* xtab){
             sendMessage(groupedProcess_id, JOINED, 0);
         }
     }
-    if(state == readyToFarm && k - offset <= hyperSpace){
+    if(state == readyToFarm && k <= hyperSpace){
         printf("[Y - %d] farming, x - %d, hyperspace - %d\n", id, groupedProcess_id, hyperSpace);
         changeState(farming);
         hyperSpace--;
@@ -216,7 +218,7 @@ int farmingY(int k, int* queue, int *inQue, int* xtab){
         incrementTimestamp(0);
         sendMessage(groupedProcess_id, RELEASE_Y, 0);
         sendToGroup(RELEASE_Y, Y, groupedProcess_id);
-        if(hyperSpace - (k - offset) == -1){
+        if(hyperSpace - k == -1){
             incrementTimestamp(0);
             printf("[Y - %d] EMPTY\n",id);
             sendToGroup(EMPTY, Z, 0);
@@ -236,7 +238,6 @@ void runningY(){
     memset(queue, 0, countOfY);
     int receivedFULLs, sendedEMPTY = 0, receivedACKs;
     int k, sendedToX;
-    int offsethelper;
     struct Message message;
     int resY = 0;
     int ys = countOfX;
@@ -247,7 +248,7 @@ start:
     receivedACKs = 0;
     queue[id-ys]=timestamp;
     groupedProcess_id = -1;
-    k=0, resY=0, offsethelper=0;
+    k=0, resY=0;
     while(1){
         message = receiveMessage();
         incrementTimestamp(message.timestamp);
@@ -268,11 +269,9 @@ start:
                     k = queuePlace(Y, queue, inQue);
                 resY = farmingY(k, queue, inQue, xtab); 
                 if(resY == 1){
-                    offset += offsethelper; offsethelper = 0;
                     goto start;
                 }else if(resY == 2){
                     sendedEMPTY = 1;
-                    offset += offsethelper; offsethelper = 0;
                     goto start;
                 }
             }
@@ -282,11 +281,9 @@ start:
             if(state == waitingForX)
                 resY = farmingY(k, queue, inQue, xtab); 
             if(resY == 1){
-                offset += offsethelper; offsethelper = 0;
                 goto start;
             }else if(resY == 2){
                 sendedEMPTY = 1;
-                offset += offsethelper; offsethelper = 0;
                 goto start;
             }
             break;
@@ -301,11 +298,9 @@ start:
             }
             resY = farmingY(k, queue, inQue, xtab); 
             if(resY == 1){
-                offset += offsethelper; offsethelper = 0;
                 goto start;
             }else if(resY == 2){
                 sendedEMPTY = 1;
-                offset += offsethelper; offsethelper = 0;
                 goto start;
             }
             break;
@@ -317,11 +312,9 @@ start:
                 receivedFULLs = 0;
                 resY = farmingY(k, queue, inQue, xtab); 
                 if(resY == 1){
-                    offset += offsethelper; offsethelper = 0;
                     goto start;
                 }else if(resY == 2){
                     sendedEMPTY = 1;
-                    offset += offsethelper; offsethelper = 0;
                     goto start;
                 }
             }
@@ -342,7 +335,6 @@ void runningZ(){
     int k=0, receivedACKs = 0;
     int zs = countOfY+countOfX;
     int receivedEMPTYs = 0, sendedFULL = 0;
-    int offsethelper;
     goto secondStart;
     //początek, proces rozsyła żądanie do Xs aby otrzymać Y
 start:
@@ -351,7 +343,6 @@ start:
     sendToGroup(REQ, Z, 0);
     receivedACKs = 0, k = 0;
     queue[id - zs] = timestamp;
-    offsethelper=0;
 secondStart:
     //pętla zarządzająca odbiorem wiadomości
     while(1){
@@ -372,7 +363,7 @@ secondStart:
                 changeState(readyToFarm);
                 printf("\t\t\t\t\t[Z - %d] READYTOFARM - %d\n",id,k);
             }
-            if(k>0 && (k - offset) + hyperSpace <= MAX_ENERGY){
+            if(k>0 && (k) + hyperSpace <= MAX_ENERGY){
                changeState(farming);
                hyperSpace++;
                printf("\t\t\t\t\t[Z - %d] FARMING - hyperspace: %d\n",id,hyperSpace);
@@ -386,7 +377,6 @@ secondStart:
                     sendedFULL = 1;
                     goto secondStart;
                 }
-                offset += offsethelper; offsethelper = 0;
                 goto start;
             }
             break;

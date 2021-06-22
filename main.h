@@ -12,7 +12,7 @@ int countOfX, countOfY, countOfZ;
 masters master;
 pthread_mutex_t tsMutex;// }
 int timestamp=0;//         }
-int offset = 0;
+int countReqs = 0;
 pthread_mutex_t hsMutex;//     }
 int hyperSpace;
 int sended_ts;
