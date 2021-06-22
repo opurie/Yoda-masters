@@ -217,6 +217,7 @@ int farmingY(int k, int* queue, int *inQue, int* xtab, int offset){
         sendToGroup(RELEASE_Y, Y, groupedProcess_id);
         if(hyperSpace - (k - offset) == -1){
             incrementTimestamp(0);
+            printf("[Y - %d] EMPTY\n",id);
             sendToGroup(EMPTY, Z, 0);
             return 2;
         }
@@ -293,6 +294,7 @@ start:
             hyperSpace -= 1;
             if(hyperSpace==0 && sendedEMPTY == 0){
                 sendedEMPTY=1;
+                printf("[Y - %d] EMPTY\n",id);
                 incrementTimestamp(0);
                 sendToGroup(EMPTY, Z, 0);
             }
