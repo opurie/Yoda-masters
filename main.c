@@ -230,7 +230,6 @@ int farmingY(int k, int* queue, int *inQue, int* xtab){
         sendToGroup(RELEASE_Y, Y, groupedProcess_id);
         if(hyperSpace - k == -1){
             incrementTimestamp(0);
-            sendToGroup(EMPTY, Y, 0);
             sendToGroup(EMPTY, Z, 0);
             return 2;
         }
@@ -313,14 +312,6 @@ start:
             }else if(resY == 2){
                 sendedEMPTY = 1;
                 goto start;
-            }
-            break;
-        case EMPTY:
-            incrementTimestamp(0);
-            if(sendedEMPTY==0){
-                printf("[Y - %d] send empty\n", id);
-                sendedEMPTY=1;
-                sendToGroup(EMPTY,Z,0);
             }
             break;
         case FULL:
