@@ -93,6 +93,7 @@ int queuePlace(masters master, int *queue, int *inQue){
                 k++;
             else if(queue[i] == queue[id] && i < id && inQue[i]==1)
                 k++;
+            else k--;
         }
     }
     if(master == Y){
@@ -159,8 +160,8 @@ start:
                 k = queuePlace(master, queue, inQue);
                 changeState(waitingForY);    
                 incrementTimestamp(0);
-                printf("[X - %d] readyToFarm, kolejka - %d\n", id, k + countReqs- countOfX);
-                sendToGroup(GROUP_ME, Y, k+ countReqs- countOfX);
+                printf("[X - %d] readyToFarm, kolejka - %d\n", id, k + countReqs);
+                sendToGroup(GROUP_ME, Y, k + countReqs);
                 changeState(readyToFarm);
             }
             break;
