@@ -89,27 +89,27 @@ int queuePlace(masters master, int *queue, int *inQue){
     if(master == X){
         for(int i = 0; i < countOfX; i++){
             if(i == id) continue;
-            if(queue[i] < queue[id] )
+            if(queue[i] < queue[id] && inQue[i]==1)
                 k++;
-            else if(queue[i] == queue[id] && i < id )
+            else if(queue[i] == queue[id] && i < id && inQue[i]==1)
                 k++;
         }
     }
     if(master == Y){
         for(int i = 0; i<countOfY; i++){
             if(id - ys == i) continue;
-            if(queue[i] < sended_ts)
+            if(queue[i] < sended_ts && inQue[i]==1)
                 k++;
-            else if(queue[i] == sended_ts && i < id - ys )
+            else if(queue[i] == sended_ts && i < id - ys && inQue[i]==1)
                 k++;
         }
     }
     if(master == Z){
         for(int i = 0; i<countOfZ;i++){
             if(id - zs == i) continue;
-            if(queue[i] < sended_ts)
+            if(queue[i] < sended_ts && inQue[i]==1)
                 k++;
-            else if(queue[i] == sended_ts && i < id-zs)
+            else if(queue[i] == sended_ts && i < id-zs && inQue[i]==1)
                 k++;
         }
     }
@@ -123,7 +123,7 @@ farming - Yi odesłał nam wiadomość i jesteśmy z nim w parze
 */
 void runningX(){
     int *queue= malloc(countOfX * sizeof(int));
-    char *inQue= malloc(countOfX * sizeof(char)); 
+    int *inQue= malloc(countOfX * sizeof(int)); 
     memset(inQue, 1, countOfX);
     memset(queue, 0, countOfX);
     struct Message message;
@@ -242,9 +242,9 @@ char farmingY(int k, int* queue, int *inQue, int* xtab){
 void runningY(){
     int *queue= malloc(countOfY * sizeof(int));
     int *xtab = malloc(countOfX * sizeof(int));
-    char *inQue= malloc(countOfY * sizeof(char)); 
+    int *inQue= malloc(countOfY * sizeof(int)); 
     memset(inQue, 1, countOfY);
-    memset(xtab,-1,countOfX);
+    memset(xtab,-1, countOfX);
     memset(queue, 0, countOfY);
     int receivedFULLs, sendedEMPTY = 0, receivedACKs;
     int k, sendedToX;
@@ -348,7 +348,7 @@ start:
 }
 void runningZ(){
     int *queue= malloc(countOfZ * sizeof(int));
-    char *inQue= malloc(countOfZ * sizeof(char)); 
+    int *inQue= malloc(countOfZ * sizeof(int)); 
     memset(inQue, 1, countOfZ);
     memset(queue, 0, countOfZ);
     struct Message message;
