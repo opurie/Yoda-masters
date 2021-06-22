@@ -93,7 +93,6 @@ int queuePlace(masters master, int *queue, int *inQue){
                 k++;
             else if(queue[i] == queue[id] && i < id && inQue[i]==1)
                 k++;
-            if(inQue[i]==0) offset++;
         }
     }
     if(master == Y){
@@ -103,7 +102,6 @@ int queuePlace(masters master, int *queue, int *inQue){
                 k++;
             else if(queue[i] == queue[id - ys] && i < id - ys && inQue[i]==1)
                 k++;
-            if(inQue[i]==0) offset++;
         }
     }
     if(master == Z){
@@ -113,7 +111,6 @@ int queuePlace(masters master, int *queue, int *inQue){
                 k++;
             else if(queue[i] == queue[id - zs] && i < id-zs && inQue[i]==1)
                 k++;
-            if(inQue[i]==0) offset++;
         }
     }
     return k + offset;
@@ -132,6 +129,7 @@ void runningX(){
     struct Message message;
     int k; 
     int minimum = countOfX;
+    int offsethelper=0;
     if(countOfX > countOfY) minimum = countOfY;
     //początek, proces rozsyła żądanie do Xs aby otrzymać Y
 start:
@@ -141,7 +139,7 @@ start:
     queue[id]=timestamp;
     groupedProcess_id = -1;
     int sendedToY=0, receivedACKs = 0;
-    k=0;
+    k=0; offsethelper=0;
     //pętla zarządzająca odbiorem wiadomości
     while(1){
         message = receiveMessage();
@@ -151,6 +149,7 @@ start:
         case REQ:
             queue[message.sender] = message.timestamp;
             inQue[message.sender] = 1;
+            offsethelper++;
             sendMessage(message.sender, ACK, 0);
             break;
         case ACK:
@@ -182,6 +181,7 @@ start:
             incrementTimestamp(0);
             printf("[X - %d] RELEASED\n", id);
             sendToGroup(RELEASE_X, X, 0);
+            offset += offsethelper; offsethelper = 0;
             goto start;
             break;
         default:
@@ -236,7 +236,7 @@ void runningY(){
     memset(queue, 0, countOfY);
     int receivedFULLs, sendedEMPTY = 0, receivedACKs;
     int k, sendedToX;
-
+    int offsethelper;
     struct Message message;
     int resY = 0;
     int ys = countOfX;
@@ -247,7 +247,7 @@ start:
     receivedACKs = 0;
     queue[id-ys]=timestamp;
     groupedProcess_id = -1;
-    k=0, resY=0;
+    k=0, resY=0, offsethelper=0;
     while(1){
         message = receiveMessage();
         incrementTimestamp(message.timestamp);
@@ -268,9 +268,11 @@ start:
                     k = queuePlace(Y, queue, inQue);
                 resY = farmingY(k, queue, inQue, xtab); 
                 if(resY == 1){
+                    offset += offsethelper; offsethelper = 0;
                     goto start;
                 }else if(resY == 2){
                     sendedEMPTY = 1;
+                    offset += offsethelper; offsethelper = 0;
                     goto start;
                 }
             }
@@ -280,9 +282,11 @@ start:
             if(state == waitingForX)
                 resY = farmingY(k, queue, inQue, xtab); 
             if(resY == 1){
+                offset += offsethelper; offsethelper = 0;
                 goto start;
             }else if(resY == 2){
                 sendedEMPTY = 1;
+                offset += offsethelper; offsethelper = 0;
                 goto start;
             }
             break;
@@ -297,9 +301,11 @@ start:
             }
             resY = farmingY(k, queue, inQue, xtab); 
             if(resY == 1){
+                offset += offsethelper; offsethelper = 0;
                 goto start;
             }else if(resY == 2){
                 sendedEMPTY = 1;
+                offset += offsethelper; offsethelper = 0;
                 goto start;
             }
             break;
@@ -311,9 +317,11 @@ start:
                 receivedFULLs = 0;
                 resY = farmingY(k, queue, inQue, xtab); 
                 if(resY == 1){
+                    offset += offsethelper; offsethelper = 0;
                     goto start;
                 }else if(resY == 2){
                     sendedEMPTY = 1;
+                    offset += offsethelper; offsethelper = 0;
                     goto start;
                 }
             }
@@ -334,6 +342,7 @@ void runningZ(){
     int k=0, receivedACKs = 0;
     int zs = countOfY+countOfX;
     int receivedEMPTYs = 0, sendedFULL = 0;
+    int offsethelper;
     goto secondStart;
     //początek, proces rozsyła żądanie do Xs aby otrzymać Y
 start:
@@ -342,6 +351,7 @@ start:
     sendToGroup(REQ, Z, 0);
     receivedACKs = 0, k = 0;
     queue[id - zs] = timestamp;
+    offsethelper=0;
 secondStart:
     //pętla zarządzająca odbiorem wiadomości
     while(1){
@@ -376,7 +386,8 @@ secondStart:
                     sendedFULL = 1;
                     goto secondStart;
                 }
-               goto start;
+                offset += offsethelper; offsethelper = 0;
+                goto start;
             }
             break;
         case RELEASE_Z:
