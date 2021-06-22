@@ -138,7 +138,8 @@ start:
     sendToGroup(REQ, X, 0);
     queue[id]=timestamp;
     groupedProcess_id = -1;
-    int sendedToY=0, receivedACKs = 0, k=0;
+    int sendedToY=0, receivedACKs = 0;
+    k=0;
     //pętla zarządzająca odbiorem wiadomości
     while(1){
         message = receiveMessage();
@@ -155,7 +156,7 @@ start:
                 receivedACKs++;
             //otrzymano wszystkie ACKi
             if(receivedACKs==countOfX-1){
-                k = queuePlace(master, queue, inQue);
+                k = queuePlace(master, queue, inQue, offset);
                 changeState(waitingForY);    
                 incrementTimestamp(0);
                 printf("[X - %d] readyToFarm, kolejka - %d\n", id, k);
@@ -262,7 +263,7 @@ start:
                 changeState(waitingForX);
                 printf("[Y - %d] waitingForX\n",id);
                 if(k==0)
-                    k = queuePlace(Y, queue, inQue);
+                    k = queuePlace(Y, queue, inQue, offset);
                 resY = farmingY(k, queue, inQue, xtab, offset); 
                 if(resY == 1){
                     offset += countOfY;
@@ -333,7 +334,7 @@ void runningZ(){
     memset(queue, 0, countOfZ);
     struct Message message;
     state = chilling;
-    int k=0, receivedACKs = 0;
+    int k=0, receivedACKs = 0, offset = 0;
     int zs = countOfY+countOfX;
     int receivedEMPTYs = 0, sendedFULL = 0;
     goto secondStart;
@@ -360,7 +361,7 @@ secondStart:
             if(message.timestamp > queue[id - zs])
                 receivedACKs++;
             if(receivedACKs == countOfZ - 1){
-                k = queuePlace(Z, queue, inQue);
+                k = queuePlace(Z, queue, inQue, offset);
                 changeState(readyToFarm);
             }
             if(k>0 && k + hyperSpace <= MAX_ENERGY){
@@ -383,7 +384,7 @@ secondStart:
             hyperSpace++;
             inQue[message.sender - zs] = 0;
             if(state == readyToFarm)
-                k = queuePlace(Z, queue, inQue);
+                k = queuePlace(Z, queue, inQue, offset);
             if(hyperSpace == MAX_ENERGY && sendedFULL == 0){
                 sendToGroup(FULL, Y, 0);
                 sendedFULL = 1;
