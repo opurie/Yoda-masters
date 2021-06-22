@@ -23,9 +23,9 @@
 #define EMPTY 18
 
 //percentage of each masters type, sum must be 1.0
-#define X_MASTERS 0.2
-#define Y_MASTERS 0.6
-#define Z_MASTERS 0.2
+#define X_MASTERS 0.35
+#define Y_MASTERS 0.35
+#define Z_MASTERS 0.3
 
 #define MAX_ENERGY 20
 
