@@ -374,7 +374,7 @@ secondStart:
                 receivedACKs++;
             if(receivedACKs == countOfZ - 1){
                 k = queuePlace(Z, queue, inQue);
-                changeState(readyToFarm)
+                changeState(readyToFarm);
             }
             if(k>0 && k + hyperSpace <= MAX_ENERGY){
                changeState(farming);
