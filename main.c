@@ -194,7 +194,7 @@ start:
 
 }
 int findX(int k, int *xtab){
-    for(int i=0;i<countOfX;i++){
+    for(int i=0;  i<countOfX; i++){
         if(k == xtab[i])
             return i;
     }
@@ -202,15 +202,16 @@ int findX(int k, int *xtab){
 }
 void updatextab(int x_id, int *xtab){
     int j = xtab[x_id];
-    for(int i=0; i<countOfX; i++){
+    for(int i=0; i<countOfX; i++)
         if(xtab[i] > j) xtab[i]--;
-    }
+    
     xtab[x_id]=0;
 }
 char farmingY(int k, int* queue, int *inQue, int* xtab){
     if(state == waitingForX){
         groupedProcess_id = findX(k, xtab);
         if(groupedProcess_id > -1){
+            printf("[Y - %d] readyToFarm - %d",id, groupedProcess_id);
             incrementTimestamp(0);
             changeState(readyToFarm);
             sendMessage(groupedProcess_id, JOINED, 0);
@@ -224,9 +225,8 @@ char farmingY(int k, int* queue, int *inQue, int* xtab){
         incrementTimestamp(0);
         sendMessage(groupedProcess_id, RELEASE_Y, 0);
         sendToGroup(RELEASE_Y, Y, groupedProcess_id);
-        if(hyperSpace - k == 0){
+        if(hyperSpace - k == -1){
             incrementTimestamp(0);
-            printf("[Y - %d] =======EMPTY========\n",id);
             sendToGroup(EMPTY, Y, 0);
             sendToGroup(EMPTY, Z, 0);
             return 2;
@@ -249,7 +249,6 @@ void runningY(){
     char resY = 0;
     int ys = countOfX;
 start:
-    printf("[Y - %d] queueing\n", id);
     changeState(queueing);
     incrementTimestamp(0);
     sendToGroup(REQ, Y, 0);
@@ -272,8 +271,13 @@ start:
                 receivedACKs++;
             if(receivedACKs == countOfY-1){   
                 changeState(waitingForX);
+                printf("[Y - %d] waitingForX",id);
                 k = queuePlace(Y, queue, inQue);
-                if(farmingY(k, queue, inQue, xtab)==1){
+                resY = farmingY(k, queue, inQue, xtab); 
+                if(resY == 1){
+                    goto start;
+                }else if(resY == 2){
+                    sendedEMPTY = 1;
                     goto start;
                 }
             }
@@ -323,7 +327,7 @@ start:
             if(receivedFULLs==countOfZ-1){
                 hyperSpace = MAX_ENERGY;
                 sendedEMPTY = 0, receivedFULLs = 0;
-                
+
                 resY = farmingY(k, queue, inQue, xtab); 
                 if(resY == 1){
                     goto start;
