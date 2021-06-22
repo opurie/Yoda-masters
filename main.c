@@ -172,8 +172,8 @@ start:
             if(groupedProcess_id > 0)
                 printf("[ERROR X - %d] grouped - %d, want to group - %d\n", id, groupedProcess_id, message.sender);
             else{
-                printf("[X - %d] FARMING - %d\n", id, groupedProcess_id);
                 groupedProcess_id = message.sender;
+                printf("[X - %d] FARMING - %d\n", id, groupedProcess_id);
             }
             break;
         case RELEASE_Y:
