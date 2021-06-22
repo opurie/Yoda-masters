@@ -96,20 +96,20 @@ int queuePlace(masters master, int *queue, int *inQue){
         }
     }
     if(master == Y){
-        for(int i = 0; i<countOfY; i++){
+        for(int i = 0; i < countOfY; i++){
             if(id - ys == i) continue;
-            if(queue[i] < sended_ts && inQue[i]==1)
+            if(queue[i] < queue[id - ys] && inQue[i]==1)
                 k++;
-            else if(queue[i] == sended_ts && i < id - ys && inQue[i]==1)
+            else if(queue[i] == queue[id - ys] && i < id - ys && inQue[i]==1)
                 k++;
         }
     }
     if(master == Z){
         for(int i = 0; i<countOfZ;i++){
             if(id - zs == i) continue;
-            if(queue[i] < sended_ts && inQue[i]==1)
+            if(queue[i] < queue[id - zs] && inQue[i]==1)
                 k++;
-            else if(queue[i] == sended_ts && i < id-zs && inQue[i]==1)
+            else if(queue[i] == queue[id - zs] && i < id-zs && inQue[i]==1)
                 k++;
         }
     }
