@@ -360,7 +360,7 @@ secondStart:
             if(receivedACKs == countOfZ - 1){
                 k = queuePlace(Z, queue, inQue);
                 changeState(readyToFarm);
-                prinft("\t\t\t\t\t[Z - %d] READYTOFARM - %d\n",id,k);
+                printf("\t\t\t\t\t[Z - %d] READYTOFARM - %d\n",id,k);
             }
             if(k>0 && (k - offset) + hyperSpace <= MAX_ENERGY){
                changeState(farming);
