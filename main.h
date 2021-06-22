@@ -47,7 +47,7 @@ void updatextab(int k, int *xtab);
 zwraca 2 jeśli wysłało EMPTY, 
 1 jeśli tylko pobrało energię, 
 0 jeśli zgrupowało się lub nic nie zrobiło*/
-char farmingY(int k, int* queue, int *inQue, int* xtab);
+int farmingY(int k, int* queue, int *inQue, int* xtab);
 
 //zarządzają procesami
 void runningX();

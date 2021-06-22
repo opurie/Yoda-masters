@@ -210,7 +210,7 @@ void updatextab(int x_id, int *xtab){
     
     xtab[x_id]=0;
 }
-char farmingY(int k, int* queue, int *inQue, int* xtab){
+int farmingY(int k, int* queue, int *inQue, int* xtab){
     if(state == waitingForX){
         groupedProcess_id = findX(k, xtab);
         if(groupedProcess_id != -1){
@@ -249,7 +249,7 @@ void runningY(){
     int receivedFULLs, sendedEMPTY = 0, receivedACKs;
     int k, sendedToX;
     struct Message message;
-    char resY = 0;
+    int resY = 0;
     int ys = countOfX;
 start:
     changeState(queueing);
