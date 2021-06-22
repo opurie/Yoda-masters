@@ -317,8 +317,6 @@ start:
             break;
         case EMPTY:
             incrementTimestamp(0);
-            if(groupedProcess_id>=0)
-                sendMessage(groupedProcess_id, RELEASE_Y, 0);
             if(sendedEMPTY==0){
                 printf("[Y - %d] send empty\n", id);
                 sendedEMPTY=1;
@@ -329,8 +327,8 @@ start:
             receivedFULLs++;
             if(receivedFULLs==countOfZ-1){
                 hyperSpace = MAX_ENERGY;
-                sendedEMPTY = 0, receivedFULLs = 0;
-
+                sendedEMPTY = 0; 
+                receivedFULLs = 0;
                 resY = farmingY(k, queue, inQue, xtab); 
                 if(resY == 1){
                     goto start;
@@ -427,7 +425,7 @@ secondStart:
             break;
         case FULL:
             incrementTimestamp(0);
-            if(sendedFULL == 0 && hyperSpace == MAX_ENERGY){
+            if(sendedFULL == 0){
                 sendToGroup(FULL, Y, 0);
                 sendedFULL = 1;
                 changeState(chilling);
