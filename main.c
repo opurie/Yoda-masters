@@ -395,7 +395,7 @@ secondStart:
         case EMPTY:
             receivedEMPTYs++;
 
-                printf("\t\t\t\t\t[Z - %d] GOT EMPTY\n", id);
+                printf("\t\t\t\t\t[Z - %d] GOT EMPTY: %d\n", id, receivedEMPTYs);
             if(receivedEMPTYs==countOfY){
                 printf("\t\t\t\t\t[Z - %d] HERE WE GO KILLIN AGAIN\n", id);
                 sendedFULL = 0;
