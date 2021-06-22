@@ -167,7 +167,7 @@ start:
             break;
         case RELEASE_X:
             inQue[message.sender] = 0;
-            if(state != readyToFarm || state != farming)
+            if(state == waitingForY)
                 k = queuePlace(X, queue, inQue);
             if(k>0 && k <= countOfY && sendedToY==0){
                 incrementTimestamp(message.timestamp);
