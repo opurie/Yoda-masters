@@ -83,7 +83,7 @@ void sendToGroup(int messageType, masters master, int n){
     }
 }
 //k = {1..countOf(XYZ)}
-int queuePlace(masters master, int *queue, int *inQue, int offset){
+int queuePlace(masters master, int *queue, int *inQue){
     int k = 1;
     int ys = countOfX, zs = countOfX+countOfY;
     if(master == X){
@@ -93,6 +93,7 @@ int queuePlace(masters master, int *queue, int *inQue, int offset){
                 k++;
             else if(queue[i] == queue[id] && i < id && inQue[i]==1)
                 k++;
+            if(inQue[i]==0) offset++;
         }
     }
     if(master == Y){
@@ -102,6 +103,7 @@ int queuePlace(masters master, int *queue, int *inQue, int offset){
                 k++;
             else if(queue[i] == queue[id - ys] && i < id - ys && inQue[i]==1)
                 k++;
+            if(inQue[i]==0) offset++;
         }
     }
     if(master == Z){
@@ -111,6 +113,7 @@ int queuePlace(masters master, int *queue, int *inQue, int offset){
                 k++;
             else if(queue[i] == queue[id - zs] && i < id-zs && inQue[i]==1)
                 k++;
+            if(inQue[i]==0) offset++;
         }
     }
     return k + offset;
@@ -127,10 +130,9 @@ void runningX(){
     memset(inQue, 1, countOfX);
     memset(queue, 0, countOfX);
     struct Message message;
-    int k, offset=0;
+    int k; 
     int minimum = countOfX;
     if(countOfX > countOfY) minimum = countOfY;
-
     //początek, proces rozsyła żądanie do Xs aby otrzymać Y
 start:
     changeState(queueing);
@@ -156,7 +158,7 @@ start:
                 receivedACKs++;
             //otrzymano wszystkie ACKi
             if(receivedACKs==countOfX-1){
-                k = queuePlace(master, queue, inQue, offset);
+                k = queuePlace(master, queue, inQue);
                 changeState(waitingForY);    
                 incrementTimestamp(0);
                 printf("[X - %d] readyToFarm, kolejka - %d\n", id, k);
@@ -179,7 +181,6 @@ start:
         case RELEASE_Y:
             incrementTimestamp(0);
             printf("[X - %d] RELEASED\n", id);
-            offset += countOfX;
             sendToGroup(RELEASE_X, X, 0);
             goto start;
             break;
@@ -197,7 +198,7 @@ int findX(int k, int *xtab){
     return -1;
 }
 
-int farmingY(int k, int* queue, int *inQue, int* xtab, int offset){
+int farmingY(int k, int* queue, int *inQue, int* xtab){
     if(state == waitingForX){
         groupedProcess_id = findX(k, xtab);
         if(groupedProcess_id != -1){
@@ -234,7 +235,7 @@ void runningY(){
     memset(xtab,-1, countOfX);
     memset(queue, 0, countOfY);
     int receivedFULLs, sendedEMPTY = 0, receivedACKs;
-    int k, sendedToX, offset = 0;
+    int k, sendedToX;
 
     struct Message message;
     int resY = 0;
@@ -264,13 +265,11 @@ start:
                 changeState(waitingForX);
                 printf("[Y - %d] waitingForX\n",id);
                 if(k==0)
-                    k = queuePlace(Y, queue, inQue, offset);
-                resY = farmingY(k, queue, inQue, xtab, offset); 
+                    k = queuePlace(Y, queue, inQue);
+                resY = farmingY(k, queue, inQue, xtab); 
                 if(resY == 1){
-                    offset += countOfY;
                     goto start;
                 }else if(resY == 2){
-                    offset += countOfY;
                     sendedEMPTY = 1;
                     goto start;
                 }
@@ -279,12 +278,10 @@ start:
         case GROUP_ME:
             xtab[message.sender] = message.inQue;
             if(state == waitingForX)
-                resY = farmingY(k, queue, inQue, xtab, offset); 
+                resY = farmingY(k, queue, inQue, xtab); 
             if(resY == 1){
-                offset += countOfY;
                 goto start;
             }else if(resY == 2){
-                offset += countOfY;
                 sendedEMPTY = 1;
                 goto start;
             }
@@ -298,7 +295,7 @@ start:
                 incrementTimestamp(0);
                 sendToGroup(EMPTY, Z, 0);
             }
-            resY = farmingY(k, queue, inQue, xtab, offset); 
+            resY = farmingY(k, queue, inQue, xtab); 
             if(resY == 1){
                 goto start;
             }else if(resY == 2){
@@ -312,12 +309,10 @@ start:
                 hyperSpace = MAX_ENERGY;
                 sendedEMPTY = 0; 
                 receivedFULLs = 0;
-                resY = farmingY(k, queue, inQue, xtab, offset); 
+                resY = farmingY(k, queue, inQue, xtab); 
                 if(resY == 1){
-                    offset += countOfY;
                     goto start;
                 }else if(resY == 2){
-                    offset += countOfY;
                     sendedEMPTY = 1;
                     goto start;
                 }
@@ -336,7 +331,7 @@ void runningZ(){
     memset(queue, 0, countOfZ);
     struct Message message;
     state = chilling;
-    int k=0, receivedACKs = 0, offset = 0;
+    int k=0, receivedACKs = 0;
     int zs = countOfY+countOfX;
     int receivedEMPTYs = 0, sendedFULL = 0;
     goto secondStart;
@@ -363,8 +358,9 @@ secondStart:
             if(message.timestamp > queue[id - zs])
                 receivedACKs++;
             if(receivedACKs == countOfZ - 1){
-                k = queuePlace(Z, queue, inQue, offset);
+                k = queuePlace(Z, queue, inQue);
                 changeState(readyToFarm);
+                prinft("\t\t\t\t\t[Z - %d] READYTOFARM - %d\n",id,k);
             }
             if(k>0 && (k - offset) + hyperSpace <= MAX_ENERGY){
                changeState(farming);
@@ -376,7 +372,6 @@ secondStart:
                     sendToGroup(FULL, Y, 0);
                     changeState(chilling);
                     sendedFULL = 1;
-                    offset += countOfZ;
                     goto secondStart;
                 }
                goto start;
@@ -389,13 +384,10 @@ secondStart:
                 sendToGroup(FULL, Y, 0);
                 sendedFULL = 1;
                 changeState(chilling);
-                offset += countOfZ;
             }
             break;
         case EMPTY:
             receivedEMPTYs++;
-
-                printf("\t\t\t\t\t[Z - %d] GOT EMPTY: %d\n", id, receivedEMPTYs);
             if(receivedEMPTYs==countOfY){
                 printf("\t\t\t\t\t[Z - %d] HERE WE GO KILLIN AGAIN\n", id);
                 sendedFULL = 0;
