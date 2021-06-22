@@ -395,6 +395,7 @@ secondStart:
         case EMPTY:
             receivedEMPTYs++;
             if(receivedEMPTYs==countOfY){
+                printf("\t\t\t\t\t[Z - %d] HERE WE GO KILLIN AGAIN\n", id);
                 sendedFULL = 0;
                 receivedEMPTYs = 0;
                 hyperSpace = 0;
