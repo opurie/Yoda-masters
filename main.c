@@ -160,6 +160,7 @@ start:
             }
             if(k>0 && k <= minimum && sendedToY==0){
                 incrementTimestamp(0);
+                printf("[X - %d] readyToFarm, kolejka - %d\n", id, k);
                 sendToGroup(GROUP_ME, Y, k);
                 changeState(readyToFarm);
                 sendedToY=1;
@@ -171,6 +172,7 @@ start:
                 k = queuePlace(X, queue, inQue);
             if(k>0 && k <= countOfY && sendedToY==0){
                 incrementTimestamp(message.timestamp);
+                printf("[X - %d] readyToFarm, kolejka - %d\n", id, k);
                 sendToGroup(GROUP_ME, Y, k);
                 changeState(readyToFarm);
                 sendedToY=1;
@@ -184,6 +186,7 @@ start:
             break;
         case RELEASE_Y:
             incrementTimestamp(0);
+            printf("[X - %d] RELEASED\n", id);
             sendToGroup(RELEASE_X, X, 0);
             goto start;
             break;
