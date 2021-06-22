@@ -418,7 +418,7 @@ secondStart:
             break;
         case EMPTY:
             receivedEMPTYs++;
-            if(receivedEMPTYs==countOfY-1){
+            if(receivedEMPTYs==countOfY){
                 sendedFULL = 0;
                 receivedEMPTYs = 0;
                 hyperSpace = 0;
