@@ -31,16 +31,24 @@ typedef enum{queueing, readyToFarm, farming, chilling,
 
 //ma zapisany aktualny stan procesu X
 State state;
-//zlicza otrzymane potwierdzenia
-int receivedACKs = 0;
+void changeState(State s);
+
 //inicjacja customowych wiadomości
 void initCustomMessage();
-//void *listeningX();
+
 //zwraca pozycje w kolejce(narazie dla X)
 int queuePlace(masters master, int *queue, int *inQue);
-int findX(int k, int *Xs);
+
+/*k - miejsce w kolejce Y, xtab - tablica z numerami kolejek Xsów*/
+int findX(int k, int *xtab);
+void updatextab(int k, int *xtab);
+
+/*Pomocnicza funkcja dla Y, 
+zwraca 2 jeśli wysłało EMPTY, 
+1 jeśli tylko pobrało energię, 
+0 jeśli zgrupowało się lub nic nie zrobiło*/
 char farmingY(int k, int* queue, int *inQue, int* xtab);
-void updateInQue(int k, int *Xs);
+
 //zarządzają procesami
 void runningX();
 void runningY();
