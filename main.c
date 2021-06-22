@@ -366,17 +366,17 @@ secondStart:
                 k = queuePlace(Z, queue, inQue, offset);
                 changeState(readyToFarm);
             }
-            if(k>0 && k + hyperSpace <= MAX_ENERGY){
+            if(k>0 && (k - offset) + hyperSpace <= MAX_ENERGY){
                changeState(farming);
                hyperSpace++;
                sleep(TIME_IN);
                incrementTimestamp(0);
                sendToGroup(RELEASE_Z, Z, 0); 
                if(hyperSpace + k == MAX_ENERGY - 1){
-                    sendToGroup(FULL, Z, 0);
                     sendToGroup(FULL, Y, 0);
                     changeState(chilling);
                     sendedFULL = 1;
+                    offset += countOfZ;
                     goto secondStart;
                 }
                goto start;
@@ -385,35 +385,11 @@ secondStart:
         case RELEASE_Z:
             hyperSpace++;
             inQue[message.sender - zs] = 0;
-            if(state == readyToFarm)
-                k = queuePlace(Z, queue, inQue, offset);
             if(hyperSpace == MAX_ENERGY && sendedFULL == 0){
                 sendToGroup(FULL, Y, 0);
                 sendedFULL = 1;
                 changeState(chilling);
-            }
-            if(k>0 && k + hyperSpace <= MAX_ENERGY){
-               changeState(farming);
-               hyperSpace++;
-               sleep(TIME_IN);
-               incrementTimestamp(0);
-               sendToGroup(RELEASE_Z, Z, 0); 
-               if(hyperSpace + k == MAX_ENERGY - 1){
-                    sendToGroup(FULL, Z, 0);
-                    sendToGroup(FULL, Y, 0);
-                    changeState(chilling);
-                    sendedFULL = 1;
-                    goto secondStart;
-                }
-               goto start;
-            }
-            break;
-        case FULL:
-            incrementTimestamp(0);
-            if(sendedFULL == 0){
-                sendToGroup(FULL, Y, 0);
-                sendedFULL = 1;
-                changeState(chilling);
+                offset += countOfZ;
             }
             break;
         case EMPTY:
