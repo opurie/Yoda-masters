@@ -89,9 +89,9 @@ int queuePlace(masters master, int *queue, int *inQue){
     if(master == X){
         for(int i = 0; i < countOfX; i++){
             if(i == id) continue;
-            if(queue[i] < queue[id] && inQue[i] == 1)
+            if(queue[i] < queue[id] )
                 k++;
-            else if(queue[i] == queue[id] && i < id && inQue[i] == 1)
+            else if(queue[i] == queue[id] && i < id )
                 k++;
         }
     }
