@@ -308,7 +308,7 @@ start:
             break;
         case FULL:
             receivedFULLs++;
-            if(receivedFULLs==countOfZ-1){
+            if(receivedFULLs==countOfZ){
                 hyperSpace = MAX_ENERGY;
                 sendedEMPTY = 0; 
                 receivedFULLs = 0;
