@@ -246,7 +246,7 @@ void runningY(){
     int receivedFULLs, sendedEMPTY = 0, receivedACKs;
     int k, sendedToX;
     struct Message message;
-    
+    char resY = 0;
     int ys = countOfX;
 start:
     printf("[Y - %d] queueing\n", id);
@@ -256,7 +256,7 @@ start:
     receivedACKs = 0;
     queue[id-ys]=timestamp;
     groupedProcess_id = -1;
-    k=0;
+    k=0, resY=0;
     while(1){
         message = receiveMessage();
         incrementTimestamp(message.timestamp);
@@ -282,7 +282,7 @@ start:
             xtab[message.sender] = message.inQue;
             if(state == waitingForX)
                 k = queuePlace(Y, queue, inQue);
-            char resY = farmingY(k, queue, inQue, xtab); 
+            resY = farmingY(k, queue, inQue, xtab); 
             if(resY == 1){
                 goto start;
             }else if(resY == 2){
@@ -300,7 +300,7 @@ start:
                 sendedEMPTY=1;
                 sendToGroup(EMPTY, Z, 0);
             }
-            char resY = farmingY(k, queue, inQue, xtab); 
+            resY = farmingY(k, queue, inQue, xtab); 
             if(resY == 1){
                 goto start;
             }else if(resY == 2){
@@ -324,7 +324,7 @@ start:
                 hyperSpace = MAX_ENERGY;
                 sendedEMPTY = 0, receivedFULLs = 0;
                 
-                char resY = farmingY(k, queue, inQue, xtab); 
+                resY = farmingY(k, queue, inQue, xtab); 
                 if(resY == 1){
                     goto start;
                 }else if(resY == 2){
