@@ -365,11 +365,13 @@ secondStart:
             if(k>0 && (k - offset) + hyperSpace <= MAX_ENERGY){
                changeState(farming);
                hyperSpace++;
+               printf("\t\t\t\t\t[Z - %d] FARMING - hyperspace: %d\n",id,hyperSpace);
                sleep(TIME_IN);
                incrementTimestamp(0);
                sendToGroup(RELEASE_Z, Z, 0); 
                if(hyperSpace + k == MAX_ENERGY - 1){
                     sendToGroup(FULL, Y, 0);
+                    printf("\t\t\t\t\t[Z - %d] FULL\n",id);
                     changeState(chilling);
                     sendedFULL = 1;
                     goto secondStart;
@@ -382,6 +384,7 @@ secondStart:
             inQue[message.sender - zs] = 0;
             if(hyperSpace == MAX_ENERGY && sendedFULL == 0){
                 sendToGroup(FULL, Y, 0);
+                printf("\t\t\t\t\t[Z - %d] FULL\n",id);
                 sendedFULL = 1;
                 changeState(chilling);
             }
