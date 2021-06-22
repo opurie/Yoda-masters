@@ -160,8 +160,8 @@ start:
                 k = queuePlace(master, queue, inQue);
                 changeState(waitingForY);    
                 incrementTimestamp(0);
-                printf("[X - %d] readyToFarm, kolejka - %d\n", id, k + countReqs);
-                sendToGroup(GROUP_ME, Y, k + countReqs);
+                printf("[X - %d] readyToFarm, kolejka - %d\n", id, k + countReqs - countOfX);
+                sendToGroup(GROUP_ME, Y, k + countReqs - countOfX);
                 changeState(readyToFarm);
             }
             break;
