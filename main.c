@@ -93,7 +93,6 @@ int queuePlace(masters master, int *queue, int *inQue){
                 k++;
             else if(queue[i] == queue[id] && i < id && inQue[i]==1)
                 k++;
-            else if(queue[i] > queue[id] && inQue[i]==1)k--;
         }
     }
     if(master == Y){
@@ -128,7 +127,7 @@ void runningX(){
     memset(inQue, 1, countOfX);
     memset(queue, 0, countOfX);
     struct Message message;
-    int k; 
+    int k; int shift=0;
     int minimum = countOfX;
     if(countOfX > countOfY) minimum = countOfY;
     //początek, proces rozsyła żądanie do Xs aby otrzymać Y
@@ -160,8 +159,8 @@ start:
                 k = queuePlace(master, queue, inQue);
                 changeState(waitingForY);    
                 incrementTimestamp(0);
-                printf("[X - %d] readyToFarm, kolejka - %d\n", id, k + countReqs - countOfX);
-                sendToGroup(GROUP_ME, Y, k + countReqs - countOfX);
+                printf("[X - %d] readyToFarm, kolejka - %d\n", id, k+shift);
+                sendToGroup(GROUP_ME, Y, k+shift);
                 changeState(readyToFarm);
             }
             break;
@@ -181,6 +180,7 @@ start:
             incrementTimestamp(0);
             printf("[X - %d] RELEASED\n", id);
             sendToGroup(RELEASE_X, X, 0);
+            shift+=countOfX;
             goto start;
             break;
         default:
