@@ -324,6 +324,7 @@ void runningZ(){
     int k=0, receivedACKs = 0;
     int zs = countOfY+countOfX;
     int receivedEMPTYs = 0, sendedFULL = 0;
+    countReqs = 0;
     goto secondStart;
     //początek, proces rozsyła żądanie do Xs aby otrzymać Y
 start:
@@ -332,6 +333,7 @@ start:
     sendToGroup(REQ, Z, 0);
     receivedACKs = 0, k = 0;
     queue[id - zs] = timestamp;
+    countReqs++;
 secondStart:
     //pętla zarządzająca odbiorem wiadomości
     while(1){
@@ -340,6 +342,7 @@ secondStart:
         switch (message.type)
         {
         case REQ:
+            countReqs++;
             queue[message.sender - zs] = message.timestamp;
             sendMessage(message.sender, ACK, 0);
             break;
