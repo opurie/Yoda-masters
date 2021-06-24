@@ -10,12 +10,10 @@ MPI_Datatype mpi_message_type;
 int countOfX, countOfY, countOfZ;
 
 masters master;
-pthread_mutex_t tsMutex;// }
-int timestamp=0;//         }
-int countReqs = 1;
-pthread_mutex_t hsMutex;//     }
+int timestamp = 0;
+int countReqs = 0;
+
 int hyperSpace;
-int sended_ts;
 int groupedProcess_id;//for X and Y
 
 //Initialize numbers of masters, set hyperspace full and assign master type to process
