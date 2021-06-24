@@ -190,7 +190,7 @@ int farmingY(int k, int* queue, int* xtab){
     if(state == waitingForX){
         groupedProcess_id = findX(k, xtab);
         if(groupedProcess_id != -1){
-            printf("[Y - %d] readyToFarm - %d, kolejka - %d\n",id, groupedProcess_id, k);
+           // printf("[Y - %d] readyToFarm - %d, kolejka - %d\n",id, groupedProcess_id, k);
             incrementTimestamp(0);
             changeState(readyToFarm);
             sendMessage(groupedProcess_id, JOINED, 0);
