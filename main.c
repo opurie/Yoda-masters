@@ -155,7 +155,7 @@ start:
                 k = queuePlace(master, queue);
                 changeState(waitingForY);    
                 incrementTimestamp(0);
-                //printf("%d\n", countReqs - k);
+                printf("[X - %d] READYTOFARM - k: %d\n",id, countReqs - k);
                 sendToGroup(GROUP_ME, Y, countReqs - k);
                 changeState(readyToFarm);
             }
@@ -163,10 +163,10 @@ start:
         case JOINED:
             changeState(farming);
             if(groupedProcess_id > 0){
-                //printf("[ERROR X - %d] grouped - %d, want to group - %d\n", id, groupedProcess_id, message.sender);
+                printf("[ERROR X - %d] grouped - %d, want to group - %d\n", id, groupedProcess_id, message.sender);
             }else{
                 groupedProcess_id = message.sender;
-               // printf("[X - %d] FARMING - Y: %d\n", id, groupedProcess_id);
+                printf("[X - %d] FARMING - Y: %d\n", id, groupedProcess_id);
             }
             break;
         case RELEASE_Y:
@@ -192,14 +192,14 @@ int farmingY(int k, int* queue, int* xtab){
     if(state == waitingForX){
         groupedProcess_id = findX(k, xtab);
         if(groupedProcess_id != -1){
-            printf("%d\n", k);
+            printf("[Y - %d] READYTOFARM, k: %d, X: %d\n",id, k, groupedProcess_id);
             incrementTimestamp(0);
             changeState(readyToFarm);
             sendMessage(groupedProcess_id, JOINED, 0);
         }
     }
     if(state == readyToFarm && (k%countOfY + 1) <= hyperSpace){
-       // printf("[Y - %d] farming, x - %d, hyperspace - %d\n", id, groupedProcess_id, hyperSpace);
+        printf("[Y - %d] farming, hyperspace - %d\n", id, hyperSpace);
         changeState(farming);
         hyperSpace--;
         sleep(TIME_IN);
@@ -208,7 +208,6 @@ int farmingY(int k, int* queue, int* xtab){
         sendToGroup(RELEASE_Y, Y, groupedProcess_id);
         if(hyperSpace==0){
             incrementTimestamp(0);
-            //printf("[Y - %d] EMPTY\n",id);
             sendToGroup(EMPTY, Z, 0);
             return 2;
         }
@@ -251,7 +250,7 @@ start:
             if(message.timestamp > queue[id - ys])
                 receivedACKs++;
             if(receivedACKs == countOfY-1){
-                //printf("[Y - %d] waitingForX\n",id);
+                printf("[Y - %d] WAITINGFORX\n",id);
                 k = countReqs - queuePlace(Y, queue);
                 changeState(waitingForX);
                 resY = farmingY(k, queue, xtab); 
@@ -277,7 +276,6 @@ start:
             hyperSpace -= 1;
             if(hyperSpace==0 && sendedEMPTY == 0){
                 sendedEMPTY=1;
-                //printf("[Y - %d] EMPTY\n",id);
                 incrementTimestamp(0);
                 sendToGroup(EMPTY, Z, 0);
             }
@@ -339,18 +337,17 @@ secondStart:
             if(receivedACKs == countOfZ - 1){
                 k = queuePlace(Z, queue);
                 changeState(readyToFarm);
-                //printf("\t\t\t\t\t%d\n",countReqs - k);
+                printf("\t\t\t\t\t[Z - %d] READYTOFARM, k: %d\n",id,countReqs - k);
             }
             if(k>-1 && ((countReqs-k)%countOfZ + 1) + hyperSpace <= MAX_ENERGY){
                changeState(farming);
                hyperSpace++;
-              // printf("\t\t\t\t\t[Z - %d] FARMING - hyperspace: %d\n",id,hyperSpace);
+               printf("\t\t\t\t\t[Z - %d] FARMING, hyperspace: %d\n",id,hyperSpace);
                sleep(TIME_IN);
                incrementTimestamp(0);
                sendToGroup(RELEASE_Z, Z, 0); 
                if(hyperSpace == MAX_ENERGY){
                     sendToGroup(FULL, Y, 0);
-                   // printf("\t\t\t\t\t[Z - %d] FULL\n",id);
                     changeState(chilling);
                     sendedFULL = 1;
                     goto secondStart;
@@ -362,7 +359,6 @@ secondStart:
             hyperSpace++;
             if(hyperSpace == MAX_ENERGY && sendedFULL == 0){
                 sendToGroup(FULL, Y, 0);
-                //printf("\t\t\t\t\t[Z - %d] FULL\n",id);
                 sendedFULL = 1;
                 changeState(chilling);
             }
