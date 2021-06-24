@@ -154,7 +154,7 @@ start:
                 k = queuePlace(master, queue);
                 changeState(waitingForY);    
                 incrementTimestamp(0);
-                printf("%d\n", countReqs - k);
+               // printf("[X - %d] readyToFarm, kolejka - %d\n", id, countReqs - k);
                 sendToGroup(GROUP_ME, Y, countReqs - k);
                 changeState(readyToFarm);
             }
@@ -191,7 +191,7 @@ int farmingY(int k, int* queue, int* xtab){
     if(state == waitingForX){
         groupedProcess_id = findX(k, xtab);
         if(groupedProcess_id != -1){
-           // printf("[Y - %d] readyToFarm - %d, kolejka - %d\n",id, groupedProcess_id, k);
+            printf("%d\n", k);
             incrementTimestamp(0);
             changeState(readyToFarm);
             sendMessage(groupedProcess_id, JOINED, 0);
