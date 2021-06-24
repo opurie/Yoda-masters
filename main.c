@@ -334,7 +334,7 @@ secondStart:
         case ACK:
             if(message.timestamp > queue[id - zs])
                 receivedACKs++;
-            if(receivedACKs == countOfZ - 1){
+            if(receivedACKs == countOfZ - 1 && state != chilling){
                 k = queuePlace(Z, queue);
                 changeState(readyToFarm);
                 printf("\t\t\t\t\t[Z - %d] READYTOFARM, k: %d\n",id,countReqs - k);
@@ -360,6 +360,7 @@ secondStart:
             if(hyperSpace == MAX_ENERGY && sendedFULL == 0){
                 sendToGroup(FULL, Y, 0);
                 sendedFULL = 1;
+                receivedACKs = 0;
                 changeState(chilling);
             }
             break;
