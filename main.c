@@ -154,7 +154,7 @@ start:
                 k = queuePlace(master, queue);
                 changeState(waitingForY);    
                 incrementTimestamp(0);
-                printf("[X - %d] readyToFarm, kolejka - %d\n", id, countReqs - k);
+                printf("%d\n", countReqs - k);
                 sendToGroup(GROUP_ME, Y, countReqs - k);
                 changeState(readyToFarm);
             }
@@ -162,7 +162,7 @@ start:
         case JOINED:
             changeState(farming);
             if(groupedProcess_id > 0)
-                printf("[ERROR X - %d] grouped - %d, want to group - %d\n", id, groupedProcess_id, message.sender);
+                //printf("[ERROR X - %d] grouped - %d, want to group - %d\n", id, groupedProcess_id, message.sender);
             else{
                 groupedProcess_id = message.sender;
                // printf("[X - %d] FARMING - Y: %d\n", id, groupedProcess_id);
@@ -170,7 +170,8 @@ start:
             break;
         case RELEASE_Y:
             //printf("[X - %d] RELEASED\n", id);
-            goto start;
+            if(groupedProcess_id == message.sender)
+                 goto start;
             break;
         default:
             break;
@@ -340,7 +341,7 @@ secondStart:
             if(receivedACKs == countOfZ - 1){
                 k = queuePlace(Z, queue);
                 changeState(readyToFarm);
-                printf("\t\t\t\t\t[Z - %d] READYTOFARM - %d\n",id,countReqs - k);
+              //  printf("\t\t\t\t\t[Z - %d] READYTOFARM - %d\n",id,countReqs - k);
             }
             if(k>-1 && ((countReqs-k)%countOfZ + 1) + hyperSpace <= MAX_ENERGY){
                changeState(farming);
