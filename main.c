@@ -203,7 +203,7 @@ int farmingY(int k, int* queue, int* xtab){
             sendMessage(groupedProcess_id, JOINED, 0);
         }
     }
-    if(state == readyToFarm && (k%countOfY) <= hyperSpace){
+    if(state == readyToFarm && (k%countOfY + 1) <= hyperSpace){
         printf("[Y - %d] farming, x - %d, hyperspace - %d\n", id, groupedProcess_id, hyperSpace);
         changeState(farming);
         hyperSpace--;
@@ -211,7 +211,7 @@ int farmingY(int k, int* queue, int* xtab){
         incrementTimestamp(0);
         sendMessage(groupedProcess_id, RELEASE_Y, 0);
         sendToGroup(RELEASE_Y, Y, groupedProcess_id);
-        if(hyperSpace - (k%countOfY) == -1){
+        if(hyperSpace - (k%countOfY + 1) == -1){
             incrementTimestamp(0);
             printf("[Y - %d] EMPTY\n",id);
             sendToGroup(EMPTY, Z, 0);
@@ -354,14 +354,14 @@ secondStart:
                 changeState(readyToFarm);
                 printf("\t\t\t\t\t[Z - %d] READYTOFARM - %d\n",id,countReqs - k);
             }
-            if(k>0 && (k%countOfZ) + hyperSpace <= MAX_ENERGY){
+            if(k>0 && ((countReqs-k)%countOfZ + 1) + hyperSpace <= MAX_ENERGY){
                changeState(farming);
                hyperSpace++;
                printf("\t\t\t\t\t[Z - %d] FARMING - hyperspace: %d\n",id,hyperSpace);
                sleep(TIME_IN);
                incrementTimestamp(0);
                sendToGroup(RELEASE_Z, Z, 0); 
-               if(hyperSpace + k%countOfZ == MAX_ENERGY - 1){
+               if(hyperSpace + (countReqs-k)%countOfZ + 1 == MAX_ENERGY - 1){
                     sendToGroup(FULL, Y, 0);
                     printf("\t\t\t\t\t[Z - %d] FULL\n",id);
                     changeState(chilling);
