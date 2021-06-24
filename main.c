@@ -155,7 +155,7 @@ start:
                 k = queuePlace(master, queue);
                 changeState(waitingForY);    
                 incrementTimestamp(0);
-               // printf("[X - %d] readyToFarm, kolejka - %d\n", id, countReqs - k);
+                printf("%d\n", countReqs - k);
                 sendToGroup(GROUP_ME, Y, countReqs - k);
                 changeState(readyToFarm);
             }
@@ -192,7 +192,7 @@ int farmingY(int k, int* queue, int* xtab){
     if(state == waitingForX){
         groupedProcess_id = findX(k, xtab);
         if(groupedProcess_id != -1){
-            printf("%d\n", k);
+            printf("\t\t%d\n", k);
             incrementTimestamp(0);
             changeState(readyToFarm);
             sendMessage(groupedProcess_id, JOINED, 0);
@@ -265,18 +265,16 @@ start:
             break;
         case GROUP_ME:
             xtab[message.sender] = message.inQue;
-                resY = farmingY(k, queue, xtab); 
-                if(resY == 1){
-                    goto start;
-                }else if(resY == 2){
-                    sendedEMPTY = 1;
-                    goto start;
-                }
-            
+            resY = farmingY(k, queue, xtab); 
+            if(resY == 1){
+                goto start;
+            }else if(resY == 2){
+                sendedEMPTY = 1;
+                goto start;
+            }            
             break;
         case RELEASE_Y:
             hyperSpace -= 1;
-            xtab[message.inQue] = -1;
             if(hyperSpace==0 && sendedEMPTY == 0){
                 sendedEMPTY=1;
                 //printf("[Y - %d] EMPTY\n",id);
@@ -320,8 +318,8 @@ start:
     changeState(queueing);
     incrementTimestamp(0);
     sendToGroup(REQ, Z, 0);
-    receivedACKs = 0, k = -1;
     queue[id - zs] = timestamp;
+    receivedACKs = 0, k = -1;
     countReqs++;
 secondStart:
     //pętla zarządzająca odbiorem wiadomości
@@ -341,7 +339,7 @@ secondStart:
             if(receivedACKs == countOfZ - 1){
                 k = queuePlace(Z, queue);
                 changeState(readyToFarm);
-              //  printf("\t\t\t\t\t[Z - %d] READYTOFARM - %d\n",id,countReqs - k);
+                printf("\t\t\t\t\t%d\n",countReqs - k);
             }
             if(k>-1 && ((countReqs-k)%countOfZ + 1) + hyperSpace <= MAX_ENERGY){
                changeState(farming);
