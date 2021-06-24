@@ -28,7 +28,7 @@
 #define Z_MASTERS 0.3
 
 #define MAX_ENERGY 50
-#define TIME_IN 0
+#define TIME_IN 1
 
 struct Message{
     //nadawca

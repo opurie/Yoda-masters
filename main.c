@@ -265,7 +265,6 @@ start:
             break;
         case GROUP_ME:
             xtab[message.sender] = message.inQue;
-            if(state == waitingForX){
                 resY = farmingY(k, queue, xtab); 
                 if(resY == 1){
                     goto start;
@@ -273,7 +272,7 @@ start:
                     sendedEMPTY = 1;
                     goto start;
                 }
-            }
+            
             break;
         case RELEASE_Y:
             hyperSpace -= 1;
