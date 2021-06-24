@@ -29,7 +29,7 @@
 
 #define MAX_ENERGY 40
 
-#define TIME_IN 1
+#define TIME_IN 0
 
 struct Message{
     //nadawca
