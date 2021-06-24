@@ -305,8 +305,8 @@ start:
             break;
         case FULL:
             receivedFULLs++;
+                printf("[Y -%d] FULL - %d\n", id, receivedFULLs);
             if(receivedFULLs==countOfZ){
-                printf("[Y -%d] FULL\n", id);
                 hyperSpace = MAX_ENERGY;
                 sendedEMPTY = 0; 
                 receivedFULLs = 0;
