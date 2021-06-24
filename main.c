@@ -305,7 +305,6 @@ start:
             break;
         case FULL:
             receivedFULLs++;
-                printf("[Y -%d] FULL - %d\n", id, receivedFULLs);
             if(receivedFULLs==countOfZ){
                 hyperSpace = MAX_ENERGY;
                 sendedEMPTY = 0; 
@@ -363,14 +362,14 @@ secondStart:
                 changeState(readyToFarm);
                 printf("\t\t\t\t\t[Z - %d] READYTOFARM - %d\n",id,k);
             }
-            if(k>0 && (k) + hyperSpace <= MAX_ENERGY){
+            if(k>0 && (k%countReqs) + hyperSpace <= MAX_ENERGY){
                changeState(farming);
                hyperSpace++;
                printf("\t\t\t\t\t[Z - %d] FARMING - hyperspace: %d\n",id,hyperSpace);
                sleep(TIME_IN);
                incrementTimestamp(0);
                sendToGroup(RELEASE_Z, Z, 0); 
-               if(hyperSpace + k == MAX_ENERGY - 1){
+               if(hyperSpace + k%countReqs == MAX_ENERGY - 1){
                     sendToGroup(FULL, Y, 0);
                     printf("\t\t\t\t\t[Z - %d] FULL\n",id);
                     changeState(chilling);
