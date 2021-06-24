@@ -233,7 +233,7 @@ void runningY(){
     memset(inQue, 1, countOfY);
     memset(xtab,-1, countOfX);
     memset(queue, 0, countOfY);
-    int receivedFULLs, sendedEMPTY = 0, receivedACKs;
+    int receivedFULLs=0, sendedEMPTY = 0, receivedACKs;
     int k, sendedToX;
     struct Message message;
     int resY = 0;
