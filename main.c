@@ -83,8 +83,8 @@ void sendToGroup(int messageType, masters master, int n){
     }
 }
 
-int queuePlace(masters master, int *queue, int *inQue){
-    int k = 1;
+int queuePlace(masters master, int *queue){
+    int k = 0;
     int ys = countOfX, zs = countOfX+countOfY;
     if(master == X){
         for(int i = 0; i < countOfX; i++){
@@ -123,8 +123,6 @@ farming - Yi odesłał nam wiadomość i jesteśmy z nim w parze
 */
 void runningX(){
     int *queue= malloc(countOfX * sizeof(int));
-    int *inQue= malloc(countOfX * sizeof(int)); 
-    memset(inQue, 1, countOfX);
     memset(queue, 0, countOfX);
     struct Message message;
     int k; int shift=0;
@@ -148,7 +146,6 @@ start:
         case REQ:
             countReqs++;
             queue[message.sender] = message.timestamp;
-            inQue[message.sender] = 1;
             sendMessage(message.sender, ACK, 0);
             break;
         case ACK:
@@ -156,7 +153,7 @@ start:
                 receivedACKs++;
             //otrzymano wszystkie ACKi
             if(receivedACKs==countOfX-1){
-                k = queuePlace(master, queue, inQue);
+                k = queuePlace(master, queue);
                 changeState(waitingForY);    
                 incrementTimestamp(0);
                 printf("[X - %d] readyToFarm, kolejka - %d\n", id, countReqs - k);
@@ -165,7 +162,6 @@ start:
             }
             break;
         case RELEASE_X:
-            inQue[message.sender] = 0;
             break;
         case JOINED:
             changeState(farming);
@@ -197,7 +193,7 @@ int findX(int k, int *xtab){
     return -1;
 }
 
-int farmingY(int k, int* queue, int *inQue, int* xtab){
+int farmingY(int k, int* queue, int* xtab){
     if(state == waitingForX){
         groupedProcess_id = findX(k, xtab);
         if(groupedProcess_id != -1){
@@ -229,8 +225,6 @@ int farmingY(int k, int* queue, int *inQue, int* xtab){
 void runningY(){
     int *queue= malloc(countOfY * sizeof(int));
     int *xtab = malloc(countOfX * sizeof(int));
-    int *inQue= malloc(countOfY * sizeof(int)); 
-    memset(inQue, 1, countOfY);
     memset(xtab,-1, countOfX);
     memset(queue, 0, countOfY);
     int receivedFULLs=0, sendedEMPTY = 0, receivedACKs;
@@ -254,7 +248,6 @@ start:
         {
         case REQ:
             queue[message.sender - ys] = message.timestamp;
-            inQue[message.sender - ys] = 1;
             countReqs++;
             sendMessage(message.sender, ACK, 0);
             break;
@@ -265,8 +258,8 @@ start:
                 changeState(waitingForX);
                 printf("[Y - %d] waitingForX\n",id);
                 if(k==0)
-                    k = queuePlace(Y, queue, inQue);
-                resY = farmingY(countReqs-k, queue, inQue, xtab); 
+                    k = queuePlace(Y, queue);
+                resY = farmingY(countReqs-k, queue, xtab); 
                 if(resY == 1){
                     goto start;
                 }else if(resY == 2){
@@ -278,7 +271,7 @@ start:
         case GROUP_ME:
             xtab[message.sender] = message.inQue;
             if(state == waitingForX)
-                resY = farmingY(countReqs - k, queue, inQue, xtab); 
+                resY = farmingY(countReqs - k, queue, xtab); 
             if(resY == 1){
                 goto start;
             }else if(resY == 2){
@@ -287,7 +280,6 @@ start:
             }
             break;
         case RELEASE_Y:
-            inQue[message.sender - ys] = 0;
             hyperSpace -= 1;
             if(hyperSpace==0 && sendedEMPTY == 0){
                 sendedEMPTY=1;
@@ -295,7 +287,7 @@ start:
                 incrementTimestamp(0);
                 sendToGroup(EMPTY, Z, 0);
             }
-            resY = farmingY(countReqs - k, queue, inQue, xtab); 
+            resY = farmingY(countReqs - k, queue, xtab); 
             if(resY == 1){
                 goto start;
             }else if(resY == 2){
@@ -309,7 +301,7 @@ start:
                 hyperSpace = MAX_ENERGY;
                 sendedEMPTY = 0; 
                 receivedFULLs = 0;
-                resY = farmingY(countReqs - k, queue, inQue, xtab); 
+                resY = farmingY(countReqs - k, queue, xtab); 
                 if(resY == 1){
                     goto start;
                 }else if(resY == 2){
@@ -326,8 +318,6 @@ start:
 }
 void runningZ(){
     int *queue= malloc(countOfZ * sizeof(int));
-    int *inQue= malloc(countOfZ * sizeof(int)); 
-    memset(inQue, 1, countOfZ);
     memset(queue, 0, countOfZ);
     struct Message message;
     state = chilling;
@@ -351,14 +341,13 @@ secondStart:
         {
         case REQ:
             queue[message.sender - zs] = message.timestamp;
-            inQue[message.sender - zs] = 1;
             sendMessage(message.sender, ACK, 0);
             break;
         case ACK:
             if(message.timestamp > queue[id - zs])
                 receivedACKs++;
             if(receivedACKs == countOfZ - 1){
-                k = queuePlace(Z, queue, inQue);
+                k = queuePlace(Z, queue);
                 changeState(readyToFarm);
                 printf("\t\t\t\t\t[Z - %d] READYTOFARM - %d\n",id,k);
             }
@@ -381,7 +370,6 @@ secondStart:
             break;
         case RELEASE_Z:
             hyperSpace++;
-            inQue[message.sender - zs] = 0;
             if(hyperSpace == MAX_ENERGY && sendedFULL == 0){
                 sendToGroup(FULL, Y, 0);
                 printf("\t\t\t\t\t[Z - %d] FULL\n",id);

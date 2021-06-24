@@ -38,7 +38,7 @@ void changeState(State s);
 void initCustomMessage();
 
 //zwraca pozycje w kolejce(narazie dla X)
-int queuePlace(masters master, int *queue, int *inQue);
+int queuePlace(masters master, int *queue);
 
 /*k - miejsce w kolejce Y, xtab - tablica z numerami kolejek Xsów*/
 int findX(int k, int *xtab);
@@ -48,7 +48,7 @@ void updatextab(int k, int *xtab);
 zwraca 2 jeśli wysłało EMPTY, 
 1 jeśli tylko pobrało energię, 
 0 jeśli zgrupowało się lub nic nie zrobiło*/
-int farmingY(int k, int* queue, int *inQue, int* xtab);
+int farmingY(int k, int* queue, int* xtab);
 
 //zarządzają procesami
 void runningX();
