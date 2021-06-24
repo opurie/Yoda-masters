@@ -352,16 +352,16 @@ secondStart:
             if(receivedACKs == countOfZ - 1){
                 k = queuePlace(Z, queue);
                 changeState(readyToFarm);
-                printf("\t\t\t\t\t[Z - %d] READYTOFARM - %d\n",id,k);
+                printf("\t\t\t\t\t[Z - %d] READYTOFARM - %d\n",id,countReqs - k);
             }
-            if(k>0 && (k%countReqs) + hyperSpace <= MAX_ENERGY){
+            if(k>0 && (k%countOfZ) + hyperSpace <= MAX_ENERGY){
                changeState(farming);
                hyperSpace++;
                printf("\t\t\t\t\t[Z - %d] FARMING - hyperspace: %d\n",id,hyperSpace);
                sleep(TIME_IN);
                incrementTimestamp(0);
                sendToGroup(RELEASE_Z, Z, 0); 
-               if(hyperSpace + k%countReqs == MAX_ENERGY - 1){
+               if(hyperSpace + k%countOfZ == MAX_ENERGY - 1){
                     sendToGroup(FULL, Y, 0);
                     printf("\t\t\t\t\t[Z - %d] FULL\n",id);
                     changeState(chilling);
