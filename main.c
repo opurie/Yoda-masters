@@ -192,7 +192,7 @@ int farmingY(int k, int* queue, int* xtab){
     if(state == waitingForX){
         groupedProcess_id = findX(k, xtab);
         if(groupedProcess_id != -1){
-            printf("\t\t%d\n", k);
+            //printf("\t\t%d\n", k);
             incrementTimestamp(0);
             changeState(readyToFarm);
             sendMessage(groupedProcess_id, JOINED, 0);
@@ -339,7 +339,7 @@ secondStart:
             if(receivedACKs == countOfZ - 1){
                 k = queuePlace(Z, queue);
                 changeState(readyToFarm);
-                printf("\t\t\t\t\t%d\n",countReqs - k);
+                //printf("\t\t\t\t\t%d\n",countReqs - k);
             }
             if(k>-1 && ((countReqs-k)%countOfZ + 1) + hyperSpace <= MAX_ENERGY){
                changeState(farming);
