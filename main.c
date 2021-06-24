@@ -132,8 +132,9 @@ start:
     incrementTimestamp(0);
     sendToGroup(REQ, X, 0);
     queue[id]=timestamp;
+
     groupedProcess_id = -1;
-    int sendedToY=0, receivedACKs = 0;
+    int receivedACKs = 0;
     k=-1; countReqs++;
     //pętla zarządzająca odbiorem wiadomości
     while(1){
@@ -221,57 +222,57 @@ void runningY(){
     int *xtab = malloc(countOfX * sizeof(int));
     memset(xtab,-1, countOfX);
     memset(queue, 0, countOfY);
-    int receivedFULLs = 0, sendedEMPTY = 0, receivedACKs;
-    int k, sendedToX;
     struct Message message;
+
+    int receivedFULLs = 0, sendedEMPTY = 0;
+    int k, sendedToX;
     int resY = 0;
     int ys = countOfX;
 start:
     changeState(queueing);
     incrementTimestamp(0);
     sendToGroup(REQ, Y, 0);
-    receivedACKs = 0;
     queue[id-ys]=timestamp;
-    groupedProcess_id = -1;
-    k=-1, resY=0;
-    countReqs++;
+
+    groupedProcess_id = -1, resY=0;
+    int receivedACKs = 0;
+    k=-1, countReqs++;
     while(1){
         message = receiveMessage();
         incrementTimestamp(message.timestamp);
         switch (message.type)
         {
         case REQ:
-            queue[message.sender - ys] = message.timestamp;
             countReqs++;
+            queue[message.sender - ys] = message.timestamp;
             sendMessage(message.sender, ACK, 0);
             break;
         case ACK:
             if(message.timestamp > queue[id - ys])
                 receivedACKs++;
-            if(receivedACKs == countOfY-1){   
-                changeState(waitingForX);
+            if(receivedACKs == countOfY-1){
                 //printf("[Y - %d] waitingForX\n",id);
-                if(k==-1){
-                    k = queuePlace(Y, queue);
-                    resY = farmingY(countReqs-k, queue, xtab); 
-                    if(resY == 1){
-                        goto start;
-                    }else if(resY == 2){
-                        sendedEMPTY = 1;
-                        goto start;
-                    }
-                }
+                k = countReqs - queuePlace(Y, queue);
+                changeState(waitingForX);
+                resY = farmingY(k, queue, xtab); 
+                if(resY == 1){
+                    goto start;
+                }else if(resY == 2){
+                    sendedEMPTY = 1;
+                    goto start;
+                }            
             }
             break;
         case GROUP_ME:
             xtab[message.sender] = message.inQue;
-            if(state == waitingForX)
-                resY = farmingY(countReqs - k, queue, xtab); 
-            if(resY == 1){
-                goto start;
-            }else if(resY == 2){
-                sendedEMPTY = 1;
-                goto start;
+            if(state == waitingForX){
+                resY = farmingY(k, queue, xtab); 
+                if(resY == 1){
+                    goto start;
+                }else if(resY == 2){
+                    sendedEMPTY = 1;
+                    goto start;
+                }
             }
             break;
         case RELEASE_Y:
@@ -290,7 +291,7 @@ start:
                 hyperSpace = MAX_ENERGY;
                 sendedEMPTY = 0; 
                 receivedFULLs = 0;
-                resY = farmingY(countReqs - k, queue, xtab); 
+                resY = farmingY(k, queue, xtab); 
                 if(resY == 1){
                     goto start;
                 }else if(resY == 2){
