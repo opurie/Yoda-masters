@@ -89,27 +89,27 @@ int queuePlace(masters master, int *queue, int *inQue){
     if(master == X){
         for(int i = 0; i < countOfX; i++){
             if(i == id) continue;
-            if(queue[i] < queue[id] && inQue[i]==1)
+            if(queue[i] > queue[id])
                 k++;
-            else if(queue[i] == queue[id] && i < id && inQue[i]==1)
+            else if(queue[i] == queue[id] && i > id)
                 k++;
         }
     }
     if(master == Y){
         for(int i = 0; i < countOfY; i++){
             if(id - ys == i) continue;
-            if(queue[i] < queue[id - ys] && inQue[i]==1)
+            if(queue[i] > queue[id - ys])
                 k++;
-            else if(queue[i] == queue[id - ys] && i < id - ys && inQue[i]==1)
+            else if(queue[i] == queue[id - ys] && i > id - ys)
                 k++;
         }
     }
     if(master == Z){
         for(int i = 0; i<countOfZ;i++){
             if(id - zs == i) continue;
-            if(queue[i] < queue[id - zs] && inQue[i]==1)
+            if(queue[i] > queue[id - zs])
                 k++;
-            else if(queue[i] == queue[id - zs] && i < id-zs && inQue[i]==1)
+            else if(queue[i] == queue[id - zs] && i > id-zs)
                 k++;
         }
     }
@@ -138,7 +138,7 @@ start:
     queue[id]=timestamp;
     groupedProcess_id = -1;
     int sendedToY=0, receivedACKs = 0;
-    k=0;
+    k=0; countReqs++;
     //pętla zarządzająca odbiorem wiadomości
     while(1){
         message = receiveMessage();
@@ -159,8 +159,8 @@ start:
                 k = queuePlace(master, queue, inQue);
                 changeState(waitingForY);    
                 incrementTimestamp(0);
-                printf("[X - %d] readyToFarm, kolejka - %d\n", id, k+shift);
-                sendToGroup(GROUP_ME, Y, k+shift);
+                printf("[X - %d] readyToFarm, kolejka - %d\n", id, countReqs - k);
+                sendToGroup(GROUP_ME, Y, countReqs - k);
                 changeState(readyToFarm);
             }
             break;
@@ -207,7 +207,7 @@ int farmingY(int k, int* queue, int *inQue, int* xtab){
             sendMessage(groupedProcess_id, JOINED, 0);
         }
     }
-    if(state == readyToFarm && k <= hyperSpace){
+    if(state == readyToFarm && (k%countOfY) <= hyperSpace){
         printf("[Y - %d] farming, x - %d, hyperspace - %d\n", id, groupedProcess_id, hyperSpace);
         changeState(farming);
         hyperSpace--;
@@ -215,7 +215,7 @@ int farmingY(int k, int* queue, int *inQue, int* xtab){
         incrementTimestamp(0);
         sendMessage(groupedProcess_id, RELEASE_Y, 0);
         sendToGroup(RELEASE_Y, Y, groupedProcess_id);
-        if(hyperSpace - k == -1){
+        if(hyperSpace - (k%countOfY) == -1){
             incrementTimestamp(0);
             printf("[Y - %d] EMPTY\n",id);
             sendToGroup(EMPTY, Z, 0);
@@ -246,6 +246,7 @@ start:
     queue[id-ys]=timestamp;
     groupedProcess_id = -1;
     k=0, resY=0;
+    countReqs++;
     while(1){
         message = receiveMessage();
         incrementTimestamp(message.timestamp);
@@ -254,6 +255,7 @@ start:
         case REQ:
             queue[message.sender - ys] = message.timestamp;
             inQue[message.sender - ys] = 1;
+            countReqs++;
             sendMessage(message.sender, ACK, 0);
             break;
         case ACK:
@@ -264,7 +266,7 @@ start:
                 printf("[Y - %d] waitingForX\n",id);
                 if(k==0)
                     k = queuePlace(Y, queue, inQue);
-                resY = farmingY(k, queue, inQue, xtab); 
+                resY = farmingY(countReqs-k, queue, inQue, xtab); 
                 if(resY == 1){
                     goto start;
                 }else if(resY == 2){
@@ -276,7 +278,7 @@ start:
         case GROUP_ME:
             xtab[message.sender] = message.inQue;
             if(state == waitingForX)
-                resY = farmingY(k, queue, inQue, xtab); 
+                resY = farmingY(countReqs - k, queue, inQue, xtab); 
             if(resY == 1){
                 goto start;
             }else if(resY == 2){
@@ -293,7 +295,7 @@ start:
                 incrementTimestamp(0);
                 sendToGroup(EMPTY, Z, 0);
             }
-            resY = farmingY(k, queue, inQue, xtab); 
+            resY = farmingY(countReqs - k, queue, inQue, xtab); 
             if(resY == 1){
                 goto start;
             }else if(resY == 2){
@@ -307,7 +309,7 @@ start:
                 hyperSpace = MAX_ENERGY;
                 sendedEMPTY = 0; 
                 receivedFULLs = 0;
-                resY = farmingY(k, queue, inQue, xtab); 
+                resY = farmingY(countReqs - k, queue, inQue, xtab); 
                 if(resY == 1){
                     goto start;
                 }else if(resY == 2){
