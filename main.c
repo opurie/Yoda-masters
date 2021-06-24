@@ -163,7 +163,7 @@ start:
         case JOINED:
             changeState(farming);
             if(groupedProcess_id > 0){
-                printf("[ERROR X - %d] grouped - %d, want to group - %d\n", id, groupedProcess_id, message.sender);
+                printf("[ERROR X - %d] grouped - %d, want to group - %d======================================\n", id, groupedProcess_id, message.sender);
             }else{
                 groupedProcess_id = message.sender;
                 printf("[X - %d] FARMING - Y: %d\n", id, groupedProcess_id);
