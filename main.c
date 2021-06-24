@@ -239,7 +239,7 @@ start:
     receivedACKs = 0;
     queue[id-ys]=timestamp;
     groupedProcess_id = -1;
-    k=0, resY=0;
+    k=-1, resY=0;
     countReqs++;
     while(1){
         message = receiveMessage();
@@ -257,14 +257,15 @@ start:
             if(receivedACKs == countOfY-1){   
                 changeState(waitingForX);
                 printf("[Y - %d] waitingForX\n",id);
-                if(k==0)
+                if(k==-1){
                     k = queuePlace(Y, queue);
-                resY = farmingY(countReqs-k, queue, xtab); 
-                if(resY == 1){
-                    goto start;
-                }else if(resY == 2){
-                    sendedEMPTY = 1;
-                    goto start;
+                    resY = farmingY(countReqs-k, queue, xtab); 
+                    if(resY == 1){
+                        goto start;
+                    }else if(resY == 2){
+                        sendedEMPTY = 1;
+                        goto start;
+                    }
                 }
             }
             break;
@@ -331,7 +332,7 @@ start:
     changeState(queueing);
     incrementTimestamp(0);
     sendToGroup(REQ, Z, 0);
-    receivedACKs = 0, k = 0;
+    receivedACKs = 0, k = -1;
     queue[id - zs] = timestamp;
     countReqs++;
 secondStart:
@@ -354,7 +355,7 @@ secondStart:
                 changeState(readyToFarm);
                 printf("\t\t\t\t\t[Z - %d] READYTOFARM - %d\n",id,countReqs - k);
             }
-            if(k>0 && ((countReqs-k)%countOfZ + 1) + hyperSpace <= MAX_ENERGY){
+            if(k>-1 && ((countReqs-k)%countOfZ + 1) + hyperSpace <= MAX_ENERGY){
                changeState(farming);
                hyperSpace++;
                printf("\t\t\t\t\t[Z - %d] FARMING - hyperspace: %d\n",id,hyperSpace);
