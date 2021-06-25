@@ -364,8 +364,6 @@ start:
                 sendedFULL = 0;
                 receivedEMPTYs = 0;
                 hyperSpace = 0;
-                if(wholeReceivedEnergy==0)
-                    goto start;
                 tmp = wholeReceivedEnergy%MAX_ENERGY;
                 if((k > wholeReceivedEnergy - tmp && k <= wholeReceivedEnergy + MAX_ENERGY - tmp))
                     if(hyperSpace < MAX_ENERGY){
