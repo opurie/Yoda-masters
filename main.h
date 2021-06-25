@@ -15,7 +15,7 @@ State state;
 masters master;
 int timestamp = 0;
 int countReqs = 0;
-
+int wholeReceivedEnergy=0;
 int hyperSpace;
 int groupedProcess_id;//for X and Y
 
