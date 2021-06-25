@@ -286,7 +286,7 @@ int farmingZ(){
     changeState(farming);
     hyperSpace++;
     wholeReceivedEnergy++;
-    printf("\t\t\t\t\t[Z - %d] FARMING, hyperspace: %d, k: %d\n",id,hyperSpace,k);
+    printf("\t\t\t\t\t[Z - %d] FARMING, hyperspace: %d\n",id,hyperSpace);
     sleep(TIME_IN);
     incrementTimestamp(0);
     sendToGroup(RELEASE_Z, Z, 0); 
