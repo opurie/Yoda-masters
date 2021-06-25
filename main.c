@@ -91,7 +91,7 @@ farming - Yi odesłał nam wiadomość i jesteśmy z nim w parze
 */
 void runningX(){
     int *queue= malloc(countOfX * sizeof(int));
-    memset(queue, 0, countOfX);
+    memset(queue, 0, countOfX* sizeof(int));
     struct Message message;
     int k, testk;
     //początek, proces rozsyła żądanie do Xs aby otrzymać Y
@@ -195,8 +195,8 @@ int farmingY(int k, int* queue, int* xtab){
 void runningY(){
     int *queue= malloc(countOfY * sizeof(int));
     int *xtab = malloc(countOfX * sizeof(int));
-    memset(xtab, 0, countOfX);
-    memset(queue, 0, countOfY);
+    memset(xtab, 0, countOfX* sizeof(int));
+    memset(queue, 0, countOfY * sizeof(int));
     struct Message message;
 
     int receivedFULLs = 0, sendedEMPTY = 0;
@@ -284,7 +284,7 @@ start:
 }
 void runningZ(){
     int *queue= malloc(countOfZ * sizeof(int));
-    memset(queue, 0, countOfZ);
+    memset(queue, 0, countOfZ* sizeof(int));
     struct Message message;
     
     int k=0, receivedACKs = 0, testk = 0;
