@@ -83,38 +83,6 @@ void sendToGroup(int messageType, masters master, int n){
     }
 }
 
-int queuePlace(masters master, int *queue){
-    int k = 0;
-    int ys = countOfX, zs = countOfX+countOfY;
-    if(master == X){
-        for(int i = 0; i < countOfX; i++){
-            if(i == id) continue;
-            if(queue[i] > queue[id])
-                k++;
-            else if(queue[i] == queue[id] && i > id)
-                k++;
-        }
-    }
-    if(master == Y){
-        for(int i = 0; i < countOfY; i++){
-            if(id - ys == i) continue;
-            if(queue[i] > queue[id - ys])
-                k++;
-            else if(queue[i] == queue[id - ys] && i > id-ys)
-                k++;
-        }
-    }
-    if(master == Z){
-        for(int i = 0; i < countOfZ; i++){
-            if(id - zs == i) continue;
-            if(queue[i] > queue[id - zs])
-                k++;
-            else if(queue[i] == queue[id - zs] && i > id-zs)
-                k++;
-        }
-    }
-    return k;
-}
 /*
 queueing - kolejkowanie się, czekanie na wszystkie ACKi
 waitingForY - odebraliśmy wszystkie ACKi i czekamy na kolej wysłania prośby do Y
@@ -344,7 +312,7 @@ secondStart:
             if(receivedACKs == countOfZ - 1 && state != chilling){
                 k = countReqs - testk;
                 changeState(readyToFarm);
-                printf("\t\t\t\t\t[Z - %d] READYTOFARM, k: %d\n",id,countReqs - k);
+                printf("\t\t\t\t\t[Z - %d] READYTOFARM, k: %d\n", id, k);
             }
             if(k>-1 && (k%countOfZ + 1) + hyperSpace <= MAX_ENERGY){
                changeState(farming);

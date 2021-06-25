@@ -37,8 +37,14 @@ struct Message{
     int timestamp;
     //typ wiadomości, linijki 16-24
     int type;
+    //zmienna pomocnicza, X wysyłają tym numer kolejki do Y
     int inQue;
 };
 //każdy proces ma przydzieloną jedną wartość
 typedef enum {X=100,Y,Z} masters;
+
+typedef enum{queueing, readyToFarm, farming, chilling,
+             waitingForX,
+             waitingForY, 
+             waitingForZ} State;
 #endif
