@@ -332,7 +332,7 @@ secondStart:
                 changeState(farming);
                 hyperSpace++;
                 wholeReceivedEnergy++;
-                printf("\t\t\t\t\t[Z - %d] FARMING, hyperspace: %d\n",id,hyperSpace);
+                printf("\t\t\t\t\t[Z - %d] FARMING, hyperspace: %d, k: %d\n",id,hyperSpace,k);
                 sleep(TIME_IN);
                 incrementTimestamp(0);
                 sendToGroup(RELEASE_Z, Z, 0); 
@@ -359,7 +359,7 @@ secondStart:
                 changeState(farming);
                 hyperSpace++;
                 wholeReceivedEnergy++;
-                printf("\t\t\t\t\t[Z - %d] FARMING, hyperspace: %d\n",id,hyperSpace);
+                printf("\t\t\t\t\t[Z - %d] FARMING, hyperspace: %d, k: %d\n",id,hyperSpace,k);
                 sleep(TIME_IN);
                 incrementTimestamp(0);
                 sendToGroup(RELEASE_Z, Z, 0); 
@@ -383,20 +383,20 @@ secondStart:
                 tmp = wholeReceivedEnergy%MAX_ENERGY;
                 if((k > wholeReceivedEnergy - tmp && k <= wholeReceivedEnergy + MAX_ENERGY - tmp))
                     if(hyperSpace < MAX_ENERGY){
-                    changeState(farming);
-                    hyperSpace++;
-                    wholeReceivedEnergy++;
-                    printf("\t\t\t\t\t[Z - %d] FARMING, hyperspace: %d\n",id,hyperSpace);
-                    sleep(TIME_IN);
-                    incrementTimestamp(0);
-                    sendToGroup(RELEASE_Z, Z, 0); 
-                    if(hyperSpace == MAX_ENERGY){
-                            sendToGroup(FULL, Y, 0);
-                            changeState(chilling);
-                            sendedFULL = 1;
-                            goto secondStart;
-                        }
-                        goto start;
+                        changeState(farming);
+                        hyperSpace++;
+                        wholeReceivedEnergy++;
+                        printf("\t\t\t\t\t[Z - %d] FARMING, hyperspace: %d, k: %d\n",id,hyperSpace,k);
+                        sleep(TIME_IN);
+                        incrementTimestamp(0);
+                        sendToGroup(RELEASE_Z, Z, 0); 
+                        if(hyperSpace == MAX_ENERGY){
+                                sendToGroup(FULL, Y, 0);
+                                changeState(chilling);
+                                sendedFULL = 1;
+                                goto secondStart;
+                            }
+                            goto start;
                     }
             }
             break;
