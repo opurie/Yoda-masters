@@ -171,7 +171,7 @@ int farmingY(int k, int* queue, int* xtab){
     int tmp = wholeReceivedEnergy%MAX_ENERGY;
     if((k>=wholeReceivedEnergy-tmp && k <= wholeReceivedEnergy + MAX_ENERGY - tmp))
         if(state == readyToFarm && hyperSpace > 0){
-            printf("[Y - %d] FARMING, hyperspace - %d, k:%d\n", id, hyperSpace,k);
+            printf("[Y - %d] FARMING, hyperspace - %d, k:%d\n", id, hyperSpace - k%MAX_ENERGY,k);
             changeState(farming);
             hyperSpace--;
             wholeReceivedEnergy++;
@@ -284,9 +284,9 @@ start:
 }
 int farmingZ(){
     changeState(farming);
+    printf("\t\t\t\t\t[Z - %d] FARMING, hyperspace: %d\n",id,hyperSpace + k%MAX_ENERGY);
     hyperSpace++;
     wholeReceivedEnergy++;
-    printf("\t\t\t\t\t[Z - %d] FARMING, hyperspace: %d\n",id,hyperSpace);
     sleep(TIME_IN);
     incrementTimestamp(0);
     sendToGroup(RELEASE_Z, Z, 0); 
