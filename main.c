@@ -297,6 +297,7 @@ void runningZ(){
     goto secondStart;
     //początek, proces rozsyła żądanie do Xs aby otrzymać Y
 start:
+    printf("\t\t\t\t\t[Z - %d] QUEUEING\n", id);
     changeState(queueing);
     incrementTimestamp(0);
     sendToGroup(REQ, Z, 0);
@@ -326,7 +327,7 @@ secondStart:
                 printf("\t\t\t\t\t[Z - %d] READYTOFARM, k: %d\n", id, k);
             }
             tmp = wholeReceivedEnergy%MAX_ENERGY;
-            if((k >= wholeReceivedEnergy - tmp && k <= wholeReceivedEnergy + MAX_ENERGY - tmp)||k==MAX_ENERGY)
+            if((k > wholeReceivedEnergy - tmp && k <= wholeReceivedEnergy + MAX_ENERGY - tmp)||k==MAX_ENERGY)
                 if(hyperSpace < MAX_ENERGY){
                 changeState(farming);
                 hyperSpace++;
@@ -353,7 +354,7 @@ secondStart:
                 sendedFULL = 1;
             }
             tmp = wholeReceivedEnergy%MAX_ENERGY;
-            if((k >= wholeReceivedEnergy - tmp && k <= wholeReceivedEnergy + MAX_ENERGY - tmp)||k==MAX_ENERGY)
+            if((k > wholeReceivedEnergy - tmp && k <= wholeReceivedEnergy + MAX_ENERGY - tmp)||k==MAX_ENERGY)
                 if(hyperSpace < MAX_ENERGY){
                 changeState(farming);
                 hyperSpace++;
@@ -374,12 +375,11 @@ secondStart:
         case EMPTY:
             receivedEMPTYs++;
             if(receivedEMPTYs==countOfY){
-                printf("\t\t\t\t\t[Z - %d] QUEUEING\n", id);
                 sendedFULL = 0;
                 receivedEMPTYs = 0;
                 hyperSpace = 0;
                 tmp = wholeReceivedEnergy%MAX_ENERGY;
-                if((k >= wholeReceivedEnergy - tmp && k <= wholeReceivedEnergy + MAX_ENERGY - tmp)||k==MAX_ENERGY)
+                if((k > wholeReceivedEnergy - tmp && k <= wholeReceivedEnergy + MAX_ENERGY - tmp))
                     if(hyperSpace < MAX_ENERGY){
                     changeState(farming);
                     hyperSpace++;
