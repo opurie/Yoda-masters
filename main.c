@@ -171,7 +171,7 @@ int farmingY(int k, int* queue, int* xtab){
     int tmp = wholeReceivedEnergy%MAX_ENERGY;
     if((k>=wholeReceivedEnergy-tmp && k <= wholeReceivedEnergy + MAX_ENERGY - tmp))
         if(state == readyToFarm && hyperSpace > 0){
-            printf("[Y - %d] FARMING, hyperspace - %d, k:%d\n", id, hyperSpace -,k);
+            printf("[Y - %d] FARMING, hyperspace - %d, k:%d\n", id, hyperSpace, k);
             changeState(farming);
             hyperSpace--;
             wholeReceivedEnergy++;
