@@ -169,7 +169,7 @@ int farmingY(int k, int* queue, int* xtab){
         }
     } 
     int tmp = wholeReceivedEnergy%MAX_ENERGY;
-    if(k>=wholeReceivedEnergy-tmp && k < wholeReceivedEnergy + MAX_ENERGY - tmp)
+    if((k>=wholeReceivedEnergy-tmp && k < wholeReceivedEnergy + MAX_ENERGY - tmp) || k==MAX_ENERGY)
         if(state == readyToFarm && hyperSpace > 0){
             printf("[Y - %d] FARMING, hyperspace - %d\n", id, hyperSpace);
             changeState(farming);
@@ -326,7 +326,7 @@ secondStart:
                 printf("\t\t\t\t\t[Z - %d] READYTOFARM, k: %d\n", id, k);
             }
             tmp = wholeReceivedEnergy%MAX_ENERGY;
-            if(k >= wholeReceivedEnergy - tmp && k < wholeReceivedEnergy + MAX_ENERGY - tmp)
+            if((k >= wholeReceivedEnergy - tmp && k < wholeReceivedEnergy + MAX_ENERGY - tmp)||k==MAX_ENERGY)
                 if(hyperSpace < MAX_ENERGY){
                 changeState(farming);
                 hyperSpace++;
@@ -353,7 +353,7 @@ secondStart:
                 sendedFULL = 1;
             }
             tmp = wholeReceivedEnergy%MAX_ENERGY;
-            if(k >= wholeReceivedEnergy - tmp && k < wholeReceivedEnergy + MAX_ENERGY - tmp)
+            if((k >= wholeReceivedEnergy - tmp && k < wholeReceivedEnergy + MAX_ENERGY - tmp)||k==MAX_ENERGY)
                 if(hyperSpace < MAX_ENERGY){
                 changeState(farming);
                 hyperSpace++;
