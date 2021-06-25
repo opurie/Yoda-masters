@@ -188,7 +188,7 @@ int farmingY(int k, int* queue, int* xtab){
 void runningY(){
     int *queue= malloc(countOfY * sizeof(int));
     int *xtab = malloc(countOfX * sizeof(int));
-    memset(xtab,-1, countOfX);
+    memset(xtab,0, countOfX);
     memset(queue, 0, countOfY);
     struct Message message;
 
