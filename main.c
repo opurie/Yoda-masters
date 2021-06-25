@@ -321,7 +321,7 @@ secondStart:
         case ACK:
             if(message.timestamp > queue[id - zs])
                 receivedACKs++;
-            if(receivedACKs == countOfZ - 1 && state != chilling){
+            if(receivedACKs == countOfZ - 1){
                 k = countReqs - testk;
                 changeState(readyToFarm);
                 printf("\t\t\t\t\t[Z - %d] READYTOFARM, k: %d\n", id, k);
@@ -329,17 +329,17 @@ secondStart:
             tmp = wholeReceivedEnergy%MAX_ENERGY;
             if((k > wholeReceivedEnergy - tmp && k <= wholeReceivedEnergy + MAX_ENERGY - tmp)||k==MAX_ENERGY)
                 if(hyperSpace < MAX_ENERGY){
-                changeState(farming);
-                hyperSpace++;
-                wholeReceivedEnergy++;
-                printf("\t\t\t\t\t[Z - %d] FARMING, hyperspace: %d, k: %d\n",id,hyperSpace,k);
-                sleep(TIME_IN);
-                incrementTimestamp(0);
-                sendToGroup(RELEASE_Z, Z, 0); 
-                if(hyperSpace == MAX_ENERGY){
-                        sendToGroup(FULL, Y, 0);
-                        changeState(chilling);
-                        sendedFULL = 1;
+                    changeState(farming);
+                    hyperSpace++;
+                    wholeReceivedEnergy++;
+                    printf("\t\t\t\t\t[Z - %d] FARMING, hyperspace: %d, k: %d\n",id,hyperSpace,k);
+                    sleep(TIME_IN);
+                    incrementTimestamp(0);
+                    sendToGroup(RELEASE_Z, Z, 0); 
+                    if(hyperSpace == MAX_ENERGY){
+                            sendToGroup(FULL, Y, 0);
+                            changeState(chilling);
+                            sendedFULL = 1;
                     }
                     goto start;
                 }
@@ -355,17 +355,17 @@ secondStart:
             tmp = wholeReceivedEnergy%MAX_ENERGY;
             if((k > wholeReceivedEnergy - tmp && k <= wholeReceivedEnergy + MAX_ENERGY - tmp)||k==MAX_ENERGY)
                 if(hyperSpace < MAX_ENERGY){
-                changeState(farming);
-                hyperSpace++;
-                wholeReceivedEnergy++;
-                printf("\t\t\t\t\t[Z - %d] FARMING, hyperspace: %d, k: %d\n",id,hyperSpace,k);
-                sleep(TIME_IN);
-                incrementTimestamp(0);
-                sendToGroup(RELEASE_Z, Z, 0); 
-                if(hyperSpace == MAX_ENERGY){
-                        sendToGroup(FULL, Y, 0);
-                        changeState(chilling);
-                        sendedFULL = 1;
+                    changeState(farming);
+                    hyperSpace++;
+                    wholeReceivedEnergy++;
+                    printf("\t\t\t\t\t[Z - %d] FARMING, hyperspace: %d, k: %d\n",id,hyperSpace,k);
+                    sleep(TIME_IN);
+                    incrementTimestamp(0);
+                    sendToGroup(RELEASE_Z, Z, 0); 
+                    if(hyperSpace == MAX_ENERGY){
+                            sendToGroup(FULL, Y, 0);
+                            changeState(chilling);
+                            sendedFULL = 1;
                     }
                     goto start;
                 }
