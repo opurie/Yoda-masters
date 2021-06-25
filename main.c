@@ -167,24 +167,21 @@ int farmingY(int k, int* queue, int* xtab){
             sendMessage(groupedProcess_id, JOINED, 0);
         }
     } 
-    int tmp = wholeReceivedEnergy%MAX_ENERGY;
-    if(k >= wholeReceivedEnergy - tmp && k < wholeReceivedEnergy + (MAX_ENERGY - tmp))
-        if(state == readyToFarm && hyperSpace>0){
-            printf("[Y - %d] FARMING, hyperspace - %d\n", id, hyperSpace);
-            changeState(farming);
-            hyperSpace--;
-            wholeReceivedEnergy++;
-            sleep(TIME_IN);
+    if(state == readyToFarm && (k%countOfY + 1) <= hyperSpace){
+        printf("[Y - %d] FARMING, hyperspace - %d\n", id, hyperSpace);
+        changeState(farming);
+        hyperSpace--;
+        sleep(TIME_IN);
+        incrementTimestamp(0);
+        sendMessage(groupedProcess_id, RELEASE_Y, 0);
+        sendToGroup(RELEASE_Y, Y, groupedProcess_id);
+        if(hyperSpace==0){
             incrementTimestamp(0);
-            sendMessage(groupedProcess_id, RELEASE_Y, 0);
-            sendToGroup(RELEASE_Y, Y, groupedProcess_id);
-            if(hyperSpace==0){
-                incrementTimestamp(0);
-                sendToGroup(EMPTY, Z, 0);
-                return 2;
-            }
-            return 1;
+            sendToGroup(EMPTY, Z, 0);
+            return 2;
         }
+        return 1;
+    }
     return 0;
 }
 
@@ -199,7 +196,6 @@ void runningY(){
     int k, sendedToX, testk;
     int resY = 0;
     int ys = countOfX;
-
     
 start:
     changeState(queueing);
@@ -249,7 +245,6 @@ start:
             }            
             break;
         case RELEASE_Y:
-            wholeReceivedEnergy++;
             hyperSpace -= 1;
             if(hyperSpace==0 && sendedEMPTY == 0){
                 sendedEMPTY=1;
@@ -287,7 +282,7 @@ void runningZ(){
     int zs = countOfY+countOfX;
     int receivedEMPTYs = 0, sendedFULL = 0;
     countReqs = 0;
-    int tmp;
+
     changeState(chilling);
     goto secondStart;
     //początek, proces rozsyła żądanie do Xs aby otrzymać Y
@@ -320,51 +315,29 @@ secondStart:
                 changeState(readyToFarm);
                 printf("\t\t\t\t\t[Z - %d] READYTOFARM, k: %d\n", id, k);
             }
-            tmp = wholeReceivedEnergy%MAX_ENERGY;
-            if(k >= wholeReceivedEnergy - tmp && k < wholeReceivedEnergy +(MAX_ENERGY - tmp))
-                if(hyperSpace < MAX_ENERGY){
-                changeState(farming);
-                hyperSpace++;
-                wholeReceivedEnergy++;
-                printf("\t\t\t\t\t[Z - %d] FARMING, hyperspace: %d\n",id,hyperSpace);
-                sleep(TIME_IN);
-                incrementTimestamp(0);
-                sendToGroup(RELEASE_Z, Z, 0); 
-                if(hyperSpace == MAX_ENERGY){
-                        sendToGroup(FULL, Y, 0);
-                        changeState(chilling);
-                        sendedFULL = 1;
-                        goto secondStart;
-                    }
-                    goto start;
+            if(k>-1 && (k%countOfZ + 1) + hyperSpace <= MAX_ENERGY){
+               changeState(farming);
+               hyperSpace++;
+               printf("\t\t\t\t\t[Z - %d] FARMING, hyperspace: %d\n",id,hyperSpace);
+               sleep(TIME_IN);
+               incrementTimestamp(0);
+               sendToGroup(RELEASE_Z, Z, 0); 
+               if(hyperSpace == MAX_ENERGY){
+                    sendToGroup(FULL, Y, 0);
+                    changeState(chilling);
+                    sendedFULL = 1;
+                    goto secondStart;
                 }
+                goto start;
+            }
             break;
         case RELEASE_Z:
             hyperSpace++;
-            wholeReceivedEnergy++;
             if(hyperSpace == MAX_ENERGY && sendedFULL == 0){
                 sendToGroup(FULL, Y, 0);
                 changeState(chilling);
                 sendedFULL = 1;
             }
-            tmp = wholeReceivedEnergy%MAX_ENERGY;
-            if(k >= wholeReceivedEnergy - tmp && k < wholeReceivedEnergy +(MAX_ENERGY - tmp))
-                if(hyperSpace < MAX_ENERGY){
-                changeState(farming);
-                hyperSpace++;
-                wholeReceivedEnergy++;
-                printf("\t\t\t\t\t[Z - %d] FARMING, hyperspace: %d\n",id,hyperSpace);
-                sleep(TIME_IN);
-                incrementTimestamp(0);
-                sendToGroup(RELEASE_Z, Z, 0); 
-                if(hyperSpace == MAX_ENERGY){
-                        sendToGroup(FULL, Y, 0);
-                        changeState(chilling);
-                        sendedFULL = 1;
-                        goto secondStart;
-                    }
-                    goto start;
-                }
             break;
         case EMPTY:
             receivedEMPTYs++;
