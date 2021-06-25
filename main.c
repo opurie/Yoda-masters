@@ -340,7 +340,6 @@ secondStart:
                         sendToGroup(FULL, Y, 0);
                         changeState(chilling);
                         sendedFULL = 1;
-                        goto secondStart;
                     }
                     goto start;
                 }
@@ -367,7 +366,6 @@ secondStart:
                         sendToGroup(FULL, Y, 0);
                         changeState(chilling);
                         sendedFULL = 1;
-                        goto secondStart;
                     }
                     goto start;
                 }
@@ -394,7 +392,6 @@ secondStart:
                                 sendToGroup(FULL, Y, 0);
                                 changeState(chilling);
                                 sendedFULL = 1;
-                                goto secondStart;
                             }
                             goto start;
                     }
