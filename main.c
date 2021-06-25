@@ -378,6 +378,24 @@ secondStart:
                 sendedFULL = 0;
                 receivedEMPTYs = 0;
                 hyperSpace = 0;
+                tmp = wholeReceivedEnergy%MAX_ENERGY;
+                if((k >= wholeReceivedEnergy - tmp && k <= wholeReceivedEnergy + MAX_ENERGY - tmp)||k==MAX_ENERGY)
+                    if(hyperSpace < MAX_ENERGY){
+                    changeState(farming);
+                    hyperSpace++;
+                    wholeReceivedEnergy++;
+                    printf("\t\t\t\t\t[Z - %d] FARMING, hyperspace: %d\n",id,hyperSpace);
+                    sleep(TIME_IN);
+                    incrementTimestamp(0);
+                    sendToGroup(RELEASE_Z, Z, 0); 
+                    if(hyperSpace == MAX_ENERGY){
+                            sendToGroup(FULL, Y, 0);
+                            changeState(chilling);
+                            sendedFULL = 1;
+                            goto secondStart;
+                        }
+                        goto start;
+                    }
                 goto start;
             }
             break;
