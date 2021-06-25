@@ -215,7 +215,9 @@ start:
             countReqs++;
             queue[message.sender - ys] = message.timestamp;
             sendMessage(message.sender, ACK, 0);
-            if(message.timestamp > queue[id - ys] || (message.timestamp == queue[id - ys] && id < message.sender))
+            if(message.timestamp > queue[id - ys])
+                testk++;
+            if((message.timestamp == queue[id - ys] && id < message.sender))
                 testk++;
             break;
         case ACK:
