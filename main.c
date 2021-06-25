@@ -290,7 +290,7 @@ void runningZ(){
     
     int k=0, receivedACKs = 0, testk = 0;
     int zs = countOfY+countOfX;
-    int receivedEMPTYs = 0, sendedFULL = 0;
+    int receivedEMPTYs = 0, sendedFULL = 0, tmp;
     countReqs = 0;
 
     changeState(chilling);
@@ -325,7 +325,7 @@ secondStart:
                 changeState(readyToFarm);
                 printf("\t\t\t\t\t[Z - %d] READYTOFARM, k: %d\n", id, k);
             }
-            int tmp = wholeReceivedEnergy%MAX_ENERGY;
+            tmp = wholeReceivedEnergy%MAX_ENERGY;
             if(k >= wholeReceivedEnergy - tmp && k < wholeReceivedEnergy + MAX_ENERGY - tmp)
                 if(hyperSpace < MAX_ENERGY){
                 changeState(farming);
@@ -352,7 +352,7 @@ secondStart:
                 changeState(chilling);
                 sendedFULL = 1;
             }
-            int tmp = wholeReceivedEnergy%MAX_ENERGY;
+            tmp = wholeReceivedEnergy%MAX_ENERGY;
             if(k >= wholeReceivedEnergy - tmp && k < wholeReceivedEnergy + MAX_ENERGY - tmp)
                 if(hyperSpace < MAX_ENERGY){
                 changeState(farming);
