@@ -282,7 +282,7 @@ start:
         }
     }
 }
-int farmingZ(){
+int farmingZ(int k){
     changeState(farming);
     printf("\t\t\t\t\t[Z - %d] FARMING, hyperspace: %d\n",id,hyperSpace + k%MAX_ENERGY);
     hyperSpace++;
@@ -339,7 +339,7 @@ start:
             tmp = wholeReceivedEnergy%MAX_ENERGY;
             if((k > wholeReceivedEnergy - tmp && k <= wholeReceivedEnergy + MAX_ENERGY - tmp)||k==MAX_ENERGY)
                 if(hyperSpace < MAX_ENERGY){
-                    sendedFULL = farmingZ();
+                    sendedFULL = farmingZ(k);
                     goto start;
                 }
             break;
@@ -354,7 +354,7 @@ start:
             tmp = wholeReceivedEnergy%MAX_ENERGY;
             if((k > wholeReceivedEnergy - tmp && k <= wholeReceivedEnergy + MAX_ENERGY - tmp)||k==MAX_ENERGY)
                 if(hyperSpace < MAX_ENERGY){
-                    sendedFULL = farmingZ();
+                    sendedFULL = farmingZ(k);
                     goto start;
                 }
             break;
@@ -367,7 +367,7 @@ start:
                 tmp = wholeReceivedEnergy%MAX_ENERGY;
                 if((k > wholeReceivedEnergy - tmp && k <= wholeReceivedEnergy + MAX_ENERGY - tmp))
                     if(hyperSpace < MAX_ENERGY){
-                        sendedFULL = farmingZ();
+                        sendedFULL = farmingZ(k);
                         goto start;
                     }
             }
