@@ -195,8 +195,10 @@ int farmingY(int k, int* queue, int* xtab){
 void runningY(){
     int *queue= malloc(countOfY * sizeof(int));
     int *xtab = malloc(countOfX * sizeof(int));
-    memset(xtab, 0, countOfX* sizeof(int));
-    memset(queue, 0, countOfY * sizeof(int));
+    for(int i = 0; i< countOfX; i++)
+        xtab[i]=0;
+    for(int i = 0; i< countOfY; i++)
+        queue[i]=0;
     struct Message message;
 
     int receivedFULLs = 0, sendedEMPTY = 0;
