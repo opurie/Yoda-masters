@@ -225,7 +225,7 @@ void runningY(){
     struct Message message;
 
     int receivedFULLs = 0, sendedEMPTY = 0;
-    int k, sendedToX;
+    int k, sendedToX, testk;
     int resY = 0;
     int ys = countOfX;
 start:
@@ -236,7 +236,7 @@ start:
 
     groupedProcess_id = -1, resY=0;
     int receivedACKs = 0;
-    k=-1, countReqs++;
+    k=-1, countReqs++; testk=0;
     while(1){
         message = receiveMessage();
         incrementTimestamp(message.timestamp);
@@ -246,12 +246,14 @@ start:
             countReqs++;
             queue[message.sender - ys] = message.timestamp;
             sendMessage(message.sender, ACK, 0);
+            if(message.timestamp > queue[id - ys] || (message.timestamp == queue[id - ys] && id < message.sender))
+                testk++;
             break;
         case ACK:
             if(message.timestamp > queue[id - ys])
                 receivedACKs++;
             if(receivedACKs == countOfY-1){
-                k = countReqs - queuePlace(Y, queue);
+                k = countReqs - testk;
                 printf("[Y - %d] WAITINGFORX - k: %d\n",id, k);
                 changeState(waitingForX);
                 resY = farmingY(k, queue, xtab); 
