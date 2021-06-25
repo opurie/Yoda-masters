@@ -160,8 +160,13 @@ int findX(int k, int *xtab){
 int farmingY(int k, int* queue, int* xtab){
     if(state == waitingForX){
         groupedProcess_id = findX(k, xtab);
-        if(id == 17)
+        if(id == 17){
             printf("CO JA KURWA ROBIE k: %d, x: %d, xtab[8]=%d\n",k, groupedProcess_id, xtab[groupedProcess_id]);
+            for(int i=0;i<countOfX;i++){
+                printf("xtab[%d] = %d, ", i, xtab[i]);
+            }
+            printf("\n");
+            }
         if(groupedProcess_id != -1){
             printf("[Y - %d] READYTOFARM, k: %d, X: %d\n",id, k, groupedProcess_id);
             incrementTimestamp(0);
