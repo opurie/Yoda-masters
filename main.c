@@ -91,7 +91,8 @@ farming - Yi odesłał nam wiadomość i jesteśmy z nim w parze
 */
 void runningX(){
     int *queue= malloc(countOfX * sizeof(int));
-    memset(queue, 0, countOfX* sizeof(int));
+    for(int i = 0; i< countOfX; i++)
+        queue[i]=0;
     struct Message message;
     int k, testk;
     //początek, proces rozsyła żądanie do Xs aby otrzymać Y
@@ -160,13 +161,6 @@ int findX(int k, int *xtab){
 int farmingY(int k, int* queue, int* xtab){
     if(state == waitingForX){
         groupedProcess_id = findX(k, xtab);
-        if(id == 17){
-            printf("CO JA KURWA ROBIE k: %d, x: %d, xtab[8]=%d\n",k, groupedProcess_id, xtab[groupedProcess_id]);
-            for(int i=0;i<countOfX;i++){
-                printf("xtab[%d] = %d, ", i, xtab[i]);
-            }
-            printf("\n");
-            }
         if(groupedProcess_id != -1){
             printf("[Y - %d] READYTOFARM, k: %d, X: %d\n",id, k, groupedProcess_id);
             incrementTimestamp(0);
@@ -174,21 +168,24 @@ int farmingY(int k, int* queue, int* xtab){
             sendMessage(groupedProcess_id, JOINED, 0);
         }
     } 
-    if(state == readyToFarm && (k%countOfY + 1) <= hyperSpace){
-        printf("[Y - %d] FARMING, hyperspace - %d\n", id, hyperSpace);
-        changeState(farming);
-        hyperSpace--;
-        sleep(TIME_IN);
-        incrementTimestamp(0);
-        sendMessage(groupedProcess_id, RELEASE_Y, 0);
-        sendToGroup(RELEASE_Y, Y, groupedProcess_id);
-        if(hyperSpace==0){
+    int tmp = wholeReceivedEnergy%MAX_ENERGY;
+    if(k>=wholeReceivedEnergy-tmp && k < wholeReceivedEnergy + MAX_ENERGY - tmp)
+        if(state == readyToFarm && hyperSpace > 0){
+            printf("[Y - %d] FARMING, hyperspace - %d\n", id, hyperSpace);
+            changeState(farming);
+            hyperSpace--;
+            wholeReceivedEnergy++;
+            sleep(TIME_IN);
             incrementTimestamp(0);
-            sendToGroup(EMPTY, Z, 0);
-            return 2;
+            sendMessage(groupedProcess_id, RELEASE_Y, 0);
+            sendToGroup(RELEASE_Y, Y, groupedProcess_id);
+            if(hyperSpace==0){
+                incrementTimestamp(0);
+                sendToGroup(EMPTY, Z, 0);
+                return 2;
+            }
+            return 1;
         }
-        return 1;
-    }
     return 0;
 }
 
@@ -257,6 +254,7 @@ start:
             break;
         case RELEASE_Y:
             hyperSpace -= 1;
+            wholeReceivedEnergy++;
             if(hyperSpace==0 && sendedEMPTY == 0){
                 sendedEMPTY=1;
                 incrementTimestamp(0);
@@ -286,7 +284,8 @@ start:
 }
 void runningZ(){
     int *queue= malloc(countOfZ * sizeof(int));
-    memset(queue, 0, countOfZ* sizeof(int));
+    for(int i = 0; i< countOfZ; i++)
+        queue[i]=0;
     struct Message message;
     
     int k=0, receivedACKs = 0, testk = 0;
@@ -326,29 +325,51 @@ secondStart:
                 changeState(readyToFarm);
                 printf("\t\t\t\t\t[Z - %d] READYTOFARM, k: %d\n", id, k);
             }
-            if(k>-1 && (k%countOfZ + 1) + hyperSpace <= MAX_ENERGY){
-               changeState(farming);
-               hyperSpace++;
-               printf("\t\t\t\t\t[Z - %d] FARMING, hyperspace: %d\n",id,hyperSpace);
-               sleep(TIME_IN);
-               incrementTimestamp(0);
-               sendToGroup(RELEASE_Z, Z, 0); 
-               if(hyperSpace == MAX_ENERGY){
-                    sendToGroup(FULL, Y, 0);
-                    changeState(chilling);
-                    sendedFULL = 1;
-                    goto secondStart;
+            int tmp = wholeReceivedEnergy%MAX_ENERGY;
+            if(k >= wholeReceivedEnergy - tmp && k < wholeReceivedEnergy + MAX_ENERGY - tmp)
+                if(hyperSpace < MAX_ENERGY){
+                changeState(farming);
+                hyperSpace++;
+                wholeReceivedEnergy++;
+                printf("\t\t\t\t\t[Z - %d] FARMING, hyperspace: %d\n",id,hyperSpace);
+                sleep(TIME_IN);
+                incrementTimestamp(0);
+                sendToGroup(RELEASE_Z, Z, 0); 
+                if(hyperSpace == MAX_ENERGY){
+                        sendToGroup(FULL, Y, 0);
+                        changeState(chilling);
+                        sendedFULL = 1;
+                        goto secondStart;
+                    }
+                    goto start;
                 }
-                goto start;
-            }
             break;
         case RELEASE_Z:
             hyperSpace++;
+            wholeReceivedEnergy++;
             if(hyperSpace == MAX_ENERGY && sendedFULL == 0){
                 sendToGroup(FULL, Y, 0);
                 changeState(chilling);
                 sendedFULL = 1;
             }
+            int tmp = wholeReceivedEnergy%MAX_ENERGY;
+            if(k >= wholeReceivedEnergy - tmp && k < wholeReceivedEnergy + MAX_ENERGY - tmp)
+                if(hyperSpace < MAX_ENERGY){
+                changeState(farming);
+                hyperSpace++;
+                wholeReceivedEnergy++;
+                printf("\t\t\t\t\t[Z - %d] FARMING, hyperspace: %d\n",id,hyperSpace);
+                sleep(TIME_IN);
+                incrementTimestamp(0);
+                sendToGroup(RELEASE_Z, Z, 0); 
+                if(hyperSpace == MAX_ENERGY){
+                        sendToGroup(FULL, Y, 0);
+                        changeState(chilling);
+                        sendedFULL = 1;
+                        goto secondStart;
+                    }
+                    goto start;
+                }
             break;
         case EMPTY:
             receivedEMPTYs++;
