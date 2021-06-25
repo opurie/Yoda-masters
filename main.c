@@ -309,7 +309,7 @@ void runningZ(){
     memset(queue, 0, countOfZ);
     struct Message message;
     
-    int k=0, receivedACKs = 0;
+    int k=0, receivedACKs = 0, testk = 0;
     int zs = countOfY+countOfX;
     int receivedEMPTYs = 0, sendedFULL = 0;
     countReqs = 0;
@@ -322,7 +322,7 @@ start:
     incrementTimestamp(0);
     sendToGroup(REQ, Z, 0);
     queue[id - zs] = timestamp;
-    receivedACKs = 0, k = -1;
+    receivedACKs = 0, k = -1, testk = 0;
     countReqs++;
 secondStart:
     //pętla zarządzająca odbiorem wiadomości
@@ -335,16 +335,18 @@ secondStart:
             countReqs++;
             queue[message.sender - zs] = message.timestamp;
             sendMessage(message.sender, ACK, 0);
+            if(message.timestamp > queue[id-zs]||(message.timestamp == queue[id-zs] && id< message.sender))
+                testk++;    
             break;
         case ACK:
             if(message.timestamp > queue[id - zs])
                 receivedACKs++;
             if(receivedACKs == countOfZ - 1 && state != chilling){
-                k = queuePlace(Z, queue);
+                k = countReqs - testk;
                 changeState(readyToFarm);
                 printf("\t\t\t\t\t[Z - %d] READYTOFARM, k: %d\n",id,countReqs - k);
             }
-            if(k>-1 && ((countReqs-k)%countOfZ + 1) + hyperSpace <= MAX_ENERGY){
+            if(k>-1 && (k%countOfZ + 1) + hyperSpace <= MAX_ENERGY){
                changeState(farming);
                hyperSpace++;
                printf("\t\t\t\t\t[Z - %d] FARMING, hyperspace: %d\n",id,hyperSpace);
