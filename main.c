@@ -396,7 +396,6 @@ secondStart:
                         }
                         goto start;
                     }
-                goto start;
             }
             break;
         
