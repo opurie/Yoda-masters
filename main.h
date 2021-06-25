@@ -37,7 +37,7 @@ zwraca 2 jeśli wysłało EMPTY,
 1 jeśli tylko pobrało energię, 
 0 jeśli zgrupowało się lub nic nie zrobiło*/
 int farmingY(int k, int* queue, int* xtab);
-int farmingZ(int k);
+int farmingZ();
 //zarządzają procesami
 void runningX();
 void runningY();

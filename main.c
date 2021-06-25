@@ -171,7 +171,7 @@ int farmingY(int k, int* queue, int* xtab){
     int tmp = wholeReceivedEnergy%MAX_ENERGY;
     if((k>=wholeReceivedEnergy-tmp && k <= wholeReceivedEnergy + MAX_ENERGY - tmp))
         if(state == readyToFarm && hyperSpace > 0){
-            printf("[Y - %d] FARMING, hyperspace - %d, k:%d\n", id, hyperSpace - k%MAX_ENERGY,k);
+            printf("[Y - %d] FARMING, hyperspace - %d, k:%d\n", id, hyperSpace -,k);
             changeState(farming);
             hyperSpace--;
             wholeReceivedEnergy++;
@@ -282,11 +282,11 @@ start:
         }
     }
 }
-int farmingZ(int k){
+int farmingZ(){
     changeState(farming);
-    printf("\t\t\t\t\t[Z - %d] FARMING, hyperspace: %d\n",id,hyperSpace + k%MAX_ENERGY);
     hyperSpace++;
     wholeReceivedEnergy++;
+    printf("\t\t\t\t\t[Z - %d] FARMING, hyperspace: %d\n",id,hyperSpace);
     sleep(TIME_IN);
     incrementTimestamp(0);
     sendToGroup(RELEASE_Z, Z, 0); 
@@ -339,7 +339,7 @@ start:
             tmp = wholeReceivedEnergy%MAX_ENERGY;
             if((k > wholeReceivedEnergy - tmp && k <= wholeReceivedEnergy + MAX_ENERGY - tmp)||k==MAX_ENERGY)
                 if(hyperSpace < MAX_ENERGY){
-                    sendedFULL = farmingZ(k);
+                    sendedFULL = farmingZ();
                     goto start;
                 }
             break;
@@ -354,7 +354,7 @@ start:
             tmp = wholeReceivedEnergy%MAX_ENERGY;
             if((k > wholeReceivedEnergy - tmp && k <= wholeReceivedEnergy + MAX_ENERGY - tmp)||k==MAX_ENERGY)
                 if(hyperSpace < MAX_ENERGY){
-                    sendedFULL = farmingZ(k);
+                    sendedFULL = farmingZ();
                     goto start;
                 }
             break;
@@ -367,7 +367,7 @@ start:
                 tmp = wholeReceivedEnergy%MAX_ENERGY;
                 if((k > wholeReceivedEnergy - tmp && k <= wholeReceivedEnergy + MAX_ENERGY - tmp))
                     if(hyperSpace < MAX_ENERGY){
-                        sendedFULL = farmingZ(k);
+                        sendedFULL = farmingZ();
                         goto start;
                     }
             }
