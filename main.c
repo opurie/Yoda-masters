@@ -161,7 +161,7 @@ int farmingY(int k, int* queue, int* xtab){
     if(state == waitingForX){
         groupedProcess_id = findX(k, xtab);
         if(id == 17)
-            printf("CO JA KURWA ROBIE k: %d, x: %d, xtab[8]=\n",k, groupedProcess_id, xtab[groupedProcess_id]);
+            printf("CO JA KURWA ROBIE k: %d, x: %d, xtab[8]=%d\n",k, groupedProcess_id, xtab[groupedProcess_id]);
         if(groupedProcess_id != -1){
             printf("[Y - %d] READYTOFARM, k: %d, X: %d\n",id, k, groupedProcess_id);
             incrementTimestamp(0);
