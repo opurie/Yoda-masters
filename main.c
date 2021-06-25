@@ -337,7 +337,7 @@ start:
                 printf("\t\t\t\t\t[Z - %d][%d] READYTOFARM, k: %d\n", id,timestamp, k);
             }
             tmp = wholeReceivedEnergy%MAX_ENERGY;
-            if((k > wholeReceivedEnergy - tmp && k <= wholeReceivedEnergy + MAX_ENERGY - tmp)||k==MAX_ENERGY)
+            if((k > wholeReceivedEnergy - tmp && k <= wholeReceivedEnergy + MAX_ENERGY - tmp))
                 if(hyperSpace < MAX_ENERGY){
                     sendedFULL = farmingZ();
                     goto start;
@@ -352,7 +352,7 @@ start:
                 sendedFULL = 1;
             }
             tmp = wholeReceivedEnergy%MAX_ENERGY;
-            if((k > wholeReceivedEnergy - tmp && k <= wholeReceivedEnergy + MAX_ENERGY - tmp)||k==MAX_ENERGY)
+            if((k > wholeReceivedEnergy - tmp && k <= wholeReceivedEnergy + MAX_ENERGY - tmp))
                 if(hyperSpace < MAX_ENERGY){
                     sendedFULL = farmingZ();
                     goto start;
