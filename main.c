@@ -125,7 +125,7 @@ void runningX(){
     int *queue= malloc(countOfX * sizeof(int));
     memset(queue, 0, countOfX);
     struct Message message;
-    int k;
+    int k, testk;
     //początek, proces rozsyła żądanie do Xs aby otrzymać Y
 start:
     changeState(queueing);
@@ -135,7 +135,7 @@ start:
 
     groupedProcess_id = -1;
     int receivedACKs = 0;
-    k=-1; countReqs++;
+    k=-1; countReqs++; testk=0;
     //pętla zarządzająca odbiorem wiadomości
     while(1){
         message = receiveMessage();
@@ -146,13 +146,15 @@ start:
             countReqs++;
             queue[message.sender] = message.timestamp;
             sendMessage(message.sender, ACK, 0);
+            if(message.timestamp > queue[id] || (message.timestamp == queue[id] && id< message.sender))
+                testk++;
             break;
         case ACK:
             if(message.timestamp > queue[id])
                 receivedACKs++;
             //otrzymano wszystkie ACKi
             if(receivedACKs==countOfX-1){
-                k = countReqs - queuePlace(master, queue);
+                k = countReqs - testk;
                 incrementTimestamp(0);
                 printf("[X - %d] WAITINGFORY - k: %d\n",id, k);
                 sendToGroup(GROUP_ME, Y, k);
