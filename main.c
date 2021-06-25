@@ -152,12 +152,11 @@ start:
                 receivedACKs++;
             //otrzymano wszystkie ACKi
             if(receivedACKs==countOfX-1){
-                k = queuePlace(master, queue);
-                changeState(waitingForY);    
+                k = countReqs - queuePlace(master, queue);
                 incrementTimestamp(0);
-                printf("[X - %d] READYTOFARM - k: %d\n",id, countReqs - k);
-                sendToGroup(GROUP_ME, Y, countReqs - k);
-                changeState(readyToFarm);
+                printf("[X - %d] WAITINGFORY - k: %d\n",id, k);
+                sendToGroup(GROUP_ME, Y, k);
+                changeState(waitingForY);
             }
             break;
         case JOINED:
@@ -199,7 +198,7 @@ int farmingY(int k, int* queue, int* xtab){
         }
     }
     if(state == readyToFarm && (k%countOfY + 1) <= hyperSpace){
-        printf("[Y - %d] farming, hyperspace - %d\n", id, hyperSpace);
+        printf("[Y - %d] FARMING, hyperspace - %d\n", id, hyperSpace);
         changeState(farming);
         hyperSpace--;
         sleep(TIME_IN);
@@ -250,8 +249,8 @@ start:
             if(message.timestamp > queue[id - ys])
                 receivedACKs++;
             if(receivedACKs == countOfY-1){
-                printf("[Y - %d] WAITINGFORX\n",id);
                 k = countReqs - queuePlace(Y, queue);
+                printf("[Y - %d] WAITINGFORX - k: %d\n",id, k);
                 changeState(waitingForX);
                 resY = farmingY(k, queue, xtab); 
                 if(resY == 1){
@@ -305,11 +304,13 @@ void runningZ(){
     int *queue= malloc(countOfZ * sizeof(int));
     memset(queue, 0, countOfZ);
     struct Message message;
-    state = chilling;
+    
     int k=0, receivedACKs = 0;
     int zs = countOfY+countOfX;
     int receivedEMPTYs = 0, sendedFULL = 0;
     countReqs = 0;
+
+    changeState(chilling);
     goto secondStart;
     //początek, proces rozsyła żądanie do Xs aby otrzymać Y
 start:
@@ -359,15 +360,14 @@ secondStart:
             hyperSpace++;
             if(hyperSpace == MAX_ENERGY && sendedFULL == 0){
                 sendToGroup(FULL, Y, 0);
-                sendedFULL = 1;
-                receivedACKs = 0;
                 changeState(chilling);
+                sendedFULL = 1;
             }
             break;
         case EMPTY:
             receivedEMPTYs++;
             if(receivedEMPTYs==countOfY){
-              //  printf("\t\t\t\t\t[Z - %d] HERE WE GO KILLIN AGAIN\n", id);
+                printf("\t\t\t\t\t[Z - %d] QUEUEING\n", id);
                 sendedFULL = 0;
                 receivedEMPTYs = 0;
                 hyperSpace = 0;
