@@ -125,7 +125,7 @@ start:
             if(receivedACKs==countOfX-1){
                 k = countReqs - testk;
                 incrementTimestamp(0);
-                printf("[X - %d] WAITINGFORY - k: %d\n",id, k);
+                printf("[X - %d][%d] WAITINGFORY - k: %d\n",id,timestamp, k);
                 sendToGroup(GROUP_ME, Y, k);
                 changeState(waitingForY);
             }
@@ -133,10 +133,10 @@ start:
         case JOINED:
             changeState(farming);
             if(groupedProcess_id > 0){
-                printf("[ERROR X - %d] grouped - %d, want to group - %d======================================\n", id, groupedProcess_id, message.sender);
+                printf("[ERROR X - %d][%d] grouped - %d, want to group - %d======================================\n", id,timestamp, groupedProcess_id, message.sender);
             }else{
                 groupedProcess_id = message.sender;
-                printf("[X - %d] FARMING - Y: %d\n", id, groupedProcess_id);
+                printf("[X - %d][%d] FARMING - Y: %d\n", id,timestamp, groupedProcess_id);
             }
             break;
         case RELEASE_Y:
@@ -162,7 +162,7 @@ int farmingY(int k, int* queue, int* xtab){
     if(state == waitingForX){
         groupedProcess_id = findX(k, xtab);
         if(groupedProcess_id != -1){
-            printf("[Y - %d] READYTOFARM, k: %d, X: %d\n",id, k, groupedProcess_id);
+            printf("[Y - %d][%d] READYTOFARM, k: %d, X: %d\n",id,timestamp, k, groupedProcess_id);
             incrementTimestamp(0);
             changeState(readyToFarm);
             sendMessage(groupedProcess_id, JOINED, 0);
@@ -171,7 +171,7 @@ int farmingY(int k, int* queue, int* xtab){
     int tmp = wholeReceivedEnergy%MAX_ENERGY;
     if((k>=wholeReceivedEnergy-tmp && k <= wholeReceivedEnergy + MAX_ENERGY - tmp))
         if(state == readyToFarm && hyperSpace > 0){
-            printf("[Y - %d] FARMING, hyperspace - %d, k:%d\n", id, hyperSpace, k);
+            printf("[Y - %d][%d] FARMING, hyperspace - %d, k:%d\n", id,timestamp, hyperSpace, k);
             changeState(farming);
             hyperSpace--;
             wholeReceivedEnergy++;
@@ -231,7 +231,7 @@ start:
                 receivedACKs++;
             if(receivedACKs == countOfY-1){
                 k = countReqs - testk;
-                printf("[Y - %d] WAITINGFORX - k: %d\n",id, k);
+                printf("[Y - %d][%d] WAITINGFORX - k: %d\n",id,timestamp, k);
                 changeState(waitingForX);
                 resY = farmingY(k, queue, xtab); 
                 if(resY == 1){
@@ -286,7 +286,7 @@ int farmingZ(){
     changeState(farming);
     hyperSpace++;
     wholeReceivedEnergy++;
-    printf("\t\t\t\t\t[Z - %d] FARMING, hyperspace: %d\n",id,hyperSpace);
+    printf("\t\t\t\t\t[Z - %d][%d] FARMING, hyperspace: %d\n",id,timestamp,hyperSpace);
     sleep(TIME_IN);
     incrementTimestamp(0);
     sendToGroup(RELEASE_Z, Z, 0); 
@@ -308,7 +308,7 @@ void runningZ(){
     countReqs = 0;
     //początek, proces rozsyła żądanie do Xs aby otrzymać Y
 start:
-    printf("\t\t\t\t\t[Z - %d] QUEUEING\n", id);
+    printf("\t\t\t\t\t[Z - %d][%d] QUEUEING\n", id,timestamp);
     changeState(queueing);
     incrementTimestamp(0);
     sendToGroup(REQ, Z, 0);
@@ -334,7 +334,7 @@ start:
             if(receivedACKs == countOfZ - 1){
                 k = countReqs - testk;
                 changeState(readyToFarm);
-                printf("\t\t\t\t\t[Z - %d] READYTOFARM, k: %d\n", id, k);
+                printf("\t\t\t\t\t[Z - %d][%d] READYTOFARM, k: %d\n", id,timestamp, k);
             }
             tmp = wholeReceivedEnergy%MAX_ENERGY;
             if((k > wholeReceivedEnergy - tmp && k <= wholeReceivedEnergy + MAX_ENERGY - tmp)||k==MAX_ENERGY)
