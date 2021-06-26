@@ -178,7 +178,6 @@ int farmingY(int k, int* queue, int* xtab){
             sleep(TIME_IN);
             incrementTimestamp(0);
             sendMessage(groupedProcess_id, RELEASE_Y, 0);
-            sendToGroup(RELEASE_Y, Y, groupedProcess_id);
             if(hyperSpace==0){
                 incrementTimestamp(0);
                 sendToGroup(EMPTY, Z, 0);
@@ -219,6 +218,15 @@ start:
         {
         case REQ:
             countReqs++;
+            if(queue[message.sender - ys]>0){
+                hyperSpace -= 1;
+                wholeReceivedEnergy++;
+                if(hyperSpace==0 && sendedEMPTY == 0){
+                    sendedEMPTY=1;
+                    incrementTimestamp(0);
+                    sendToGroup(EMPTY, Z, 0);
+                }
+            }
             queue[message.sender - ys] = message.timestamp;
             sendMessage(message.sender, ACK, 0);
             if(message.timestamp > queue[id - ys])
@@ -252,15 +260,6 @@ start:
                 goto start;
             }            
             break;
-        case RELEASE_Y:
-            hyperSpace -= 1;
-            wholeReceivedEnergy++;
-            if(hyperSpace==0 && sendedEMPTY == 0){
-                sendedEMPTY=1;
-                incrementTimestamp(0);
-                sendToGroup(EMPTY, Z, 0);
-            }
-            break;
         case FULL:
             receivedFULLs++;
             if(receivedFULLs==countOfZ){
@@ -289,7 +288,6 @@ int farmingZ(){
     printf("\t\t\t\t\t[Z - %d][%d] FARMING, hyperspace: %d\n",id,timestamp,hyperSpace);
     sleep(TIME_IN);
     incrementTimestamp(0);
-    sendToGroup(RELEASE_Z, Z, 0); 
     if(hyperSpace == MAX_ENERGY){
         sendToGroup(FULL, Y, 0);
         return 1;
@@ -323,6 +321,21 @@ start:
         {
         case REQ:
             countReqs++;
+            if(queue[message.sender - zs] > 0){
+                hyperSpace++;
+                wholeReceivedEnergy++;
+                if(hyperSpace == MAX_ENERGY && sendedFULL == 0){
+                    sendToGroup(FULL, Y, 0);
+                    changeState(chilling);
+                    sendedFULL = 1;
+                }
+                tmp = wholeReceivedEnergy%MAX_ENERGY;
+                if((k > wholeReceivedEnergy - tmp && k <= wholeReceivedEnergy + MAX_ENERGY - tmp))
+                    if(hyperSpace < MAX_ENERGY){
+                        sendedFULL = farmingZ();
+                        goto start;
+                    }
+            }
             queue[message.sender - zs] = message.timestamp;
             sendMessage(message.sender, ACK, 0);
             if(message.timestamp > queue[id-zs]||(message.timestamp == queue[id-zs] && id< message.sender))
@@ -335,21 +348,6 @@ start:
                 k = countReqs - testk;
                 changeState(readyToFarm);
                 printf("\t\t\t\t\t[Z - %d][%d] READYTOFARM, k: %d\n", id,timestamp, k);
-            }
-            tmp = wholeReceivedEnergy%MAX_ENERGY;
-            if((k > wholeReceivedEnergy - tmp && k <= wholeReceivedEnergy + MAX_ENERGY - tmp))
-                if(hyperSpace < MAX_ENERGY){
-                    sendedFULL = farmingZ();
-                    goto start;
-                }
-            break;
-        case RELEASE_Z:
-            hyperSpace++;
-            wholeReceivedEnergy++;
-            if(hyperSpace == MAX_ENERGY && sendedFULL == 0){
-                sendToGroup(FULL, Y, 0);
-                changeState(chilling);
-                sendedFULL = 1;
             }
             tmp = wholeReceivedEnergy%MAX_ENERGY;
             if((k > wholeReceivedEnergy - tmp && k <= wholeReceivedEnergy + MAX_ENERGY - tmp))
